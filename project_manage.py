@@ -10,29 +10,14 @@ PMdatabase = DB()
 
 def initializing():
     read_person = CSVReader('persons.csv')
-    # read_person.read_csv()
-    # CSVReader.read_csv(read_person)
     CSVReader.read_csv(read_person)
-
-    # persons_table = Table('persons', ['ID', 'fist', 'last', 'type'])
     persons_table = Table('persons', read_person.data)
-
     PMdatabase.insert(persons_table)
 
-    # PMdatabase.insert(persons_table)
-    #
     read_login = CSVReader('login.csv')
-    # user_data = list(read_login.read_csv())
     CSVReader.read_csv(read_login)
-    # user_table = Table('user', ['ID', 'username', 'password', 'role'])
     user_table = Table('login', read_login.data)  # dict in list
-
-    # print(user_table)
-    # print(user_table)
     PMdatabase.insert(user_table)
-
-    # for row in user_table:
-    #     user_table.insert(row)
 
 
 # here are things to do in this function:
@@ -61,17 +46,6 @@ def login():
     # # print(login_table['ID'])
     # print(check_login)
 
-    # for key, value in user_dict.items():
-    #     if ask_username == key:
-    #         return [login_table['ID'], login_table['role']]
-    # if check_user:
-    #     # print(matching_users.table[0])
-    #     user = check_user.table[0]
-    #     return [user['person_id'], user['role']]
-    # # if check_user:
-    #     print(check_user.table[0])
-    #     user = check_user
-
 
 # here are things to do in this function:
 # add code that performs a login task
@@ -90,9 +64,25 @@ def login():
 
 
 def exit():
-    for i in PMdatabase.table_name():
-        table = PMdatabase.search(i)
-        table.write_to_csv()
+    for table in PMdatabase.database:
+        table_name = table.table_name
+        with open(os.path.join(table.__location__, f'{table_name}.csv'), 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
+            writer.writeheader()
+            writer.writerows(table.table)
+    # person_file = open('persons.csv', 'w', newline='')
+    # persons_writer = csv.DictWriter(person_file, ['ID', 'fist', 'last', 'type'])
+    # persons_writer.writeheader()
+    # persons_writer.writerows(PMdatabase.search('persons').table)
+    #
+    # login_file = open('login.csv', 'w', newline='')
+    # login_writer = csv.DictWriter(login_file, ['ID', 'username', 'password', 'role'])
+    # login_writer.writeheader()
+    # login_writer.writerows(PMdatabase.search('login').table)
+    #
+    # person_file.close()
+    # login_file.close()
+
 # here are things to do in this function:
 # write out all the tables that have been modified to the corresponding csv files
 # By now, you know how to read in a csv file and transform it into a list of dictionaries. For this project, you also need to know how to do the reverse, i.e., writing out to a csv file given a list of dictionaries. See the link below for a tutorial on how to do this:
@@ -103,12 +93,13 @@ def exit():
 # make calls to the initializing and login functions defined above
 
 initializing()
-print(f'*Database* {PMdatabase}')
 # print(PMdatabase.search('persons'))
 # print(PMdatabase.search('login'))
-
+# print(type(PMdatabase))
 
 val = login()
+print(val)  # login
+
 
 # print(val)
 # based on the return value for login, activate the code that performs activities according to the role defined for that person_id

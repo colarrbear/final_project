@@ -27,6 +27,27 @@ class CSVReader:
                 self.data.append(dict(row))
         # return self.data
 
+    # def update_csv(self):
+    #     # with open(self.table_name + '.csv', 'w', encoding='UTF8',newline='') as f:
+    #     #     writer = csv.writer(f)
+    #     #     writer.writerow(self.key)
+    #     #     for i in self.__data:
+    #     #         writer.writerow(i.values())
+    #     if not self.table:
+    #         print("Table is empty. Nothing to write.")
+    #         return
+    #
+    #     with open(os.path.join(self.__location__, f'{self.table_name}.csv'), 'w', encoding='UTF8', newline='') as f:
+    #         writer = csv.writer(f)
+    #
+    #         # Extract keys from the first element in the table
+    #         keys = list(self.table[0].keys())
+    #         writer.writerow(keys)
+    #
+    #         # Write data rows to the CSV file
+    #         for row in self.table:
+    #             writer.writerow(row.values())
+
 # ==================================================
 
 # add in code for a Database class
@@ -61,27 +82,6 @@ class Table:
         self.table = table
         self.__location__ = os.path.realpath(
             os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
-    def write_to_csv(self):
-        # with open(self.table_name + '.csv', 'w', encoding='UTF8',newline='') as f:
-        #     writer = csv.writer(f)
-        #     writer.writerow(self.key)
-        #     for i in self.__data:
-        #         writer.writerow(i.values())
-        if not self.table:
-            print("Table is empty. Nothing to write.")
-            return
-
-        with open(os.path.join(self.__location__, f'{self.table_name}.csv'), 'w', encoding='UTF8', newline='') as f:
-            writer = csv.writer(f)
-
-            # Extract keys from the first element in the table
-            keys = list(self.table[0].keys())
-            writer.writerow(keys)
-
-            # Write data rows to the CSV file
-            for row in self.table:
-                writer.writerow(row.values())
 
     def update(self, user_id, key, value):
         for i in self.table:
