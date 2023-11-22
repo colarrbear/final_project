@@ -1,4 +1,5 @@
 # import database module
+import csv
 from database import *
 
 # define a funcion called initializing
@@ -78,10 +79,20 @@ def login():
 # returns [ID, role] if valid, otherwise returning None
 
 # define a function called exit
+# def exit():
+#     for table in PMdatabase.database:
+#         table_name = table.table_name
+#         # print(table)
+#         with open(os.path.join(table.__location__, f'{table_name}.csv'), 'w', newline='') as file:
+#             writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
+#             writer.writeheader()
+#             writer.writerows(table.table)
+
+
 def exit():
-    pass
-
-
+    for i in PMdatabase.table_name():
+        table = PMdatabase.search(i)
+        table.write_to_csv()
 # here are things to do in this function:
 # write out all the tables that have been modified to the corresponding csv files
 # By now, you know how to read in a csv file and transform it into a list of dictionaries. For this project, you also need to know how to do the reverse, i.e., writing out to a csv file given a list of dictionaries. See the link below for a tutorial on how to do this:
@@ -92,10 +103,14 @@ def exit():
 # make calls to the initializing and login functions defined above
 
 initializing()
+print(f'*Database* {PMdatabase}')
 # print(PMdatabase.search('persons'))
+# print(PMdatabase.search('login'))
+
 
 val = login()
-print(val)
+
+# print(val)
 # based on the return value for login, activate the code that performs activities according to the role defined for that person_id
 
 # if val[1] = 'admin':

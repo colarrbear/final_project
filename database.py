@@ -36,6 +36,9 @@ class DB:
     def __init__(self):
         self.database = []
 
+    def table_name(self):
+        return [i.table_name for i in self.database]
+
     def insert(self, table):
         self.database.append(table)
 
@@ -45,15 +48,40 @@ class DB:
                 return table
         return None
 
-    def __repr__(self):
-        return self.database
+    # def __repr__(self):
+    #     return self.database
+    def __str__(self):
+        return '\n'.join(map(str, self.database))
 
 # add in code for a Table class
 
 class Table:
-    def __init__(self, table_name, table):
+    def __init__(self, table_name: str, table: list or dict):
         self.table_name = table_name
         self.table = table
+        self.__location__ = os.path.realpath(
+            os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+    def write_to_csv(self):
+        # with open(self.table_name + '.csv', 'w', encoding='UTF8',newline='') as f:
+        #     writer = csv.writer(f)
+        #     writer.writerow(self.key)
+        #     for i in self.__data:
+        #         writer.writerow(i.values())
+        if not self.table:
+            print("Table is empty. Nothing to write.")
+            return
+
+        with open(os.path.join(self.__location__, f'{self.table_name}.csv'), 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+
+            # Extract keys from the first element in the table
+            keys = list(self.table[0].keys())
+            writer.writerow(keys)
+
+            # Write data rows to the CSV file
+            for row in self.table:
+                writer.writerow(row.values())
 
     def update(self, user_id, key, value):
         for i in self.table:
