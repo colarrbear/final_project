@@ -39,7 +39,7 @@ class Project:
         
     def evaluate_report(self):
         # Form the evaluation committee
-        # Send the project report to the evaluation committee
+        # get the project report send to the evaluation committee
         # Collect feedback from the evaluation committee
         # Calculate the overall score
         # Provide feedback to the lead student
