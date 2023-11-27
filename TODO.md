@@ -2,6 +2,8 @@
 
 This project has 7 classes:
 
+--- 
+
 ## 1. Person():
 
 Attribute: 
@@ -34,7 +36,7 @@ Attribute:
 - person_last(str)
 
 Method:
-- view_request()
+- view_pending_requests()
 - accept_deny_request(): member_pending_request table, project_table table needs to be updated
 - change_to_lead(): must deny all member request first, project_table table, login table needs to be updated
 - view_project()
@@ -82,7 +84,7 @@ Method:
 - send_accept_advisor_response()
 - send_deny_advisor_response()
 - view_project_details(): working with project table
-- evaluate_projects(): (details in proposal)
+- evaluate_project(): (details in proposal)
 
 ## 7. Advising_Faculty(Faculty):
 
