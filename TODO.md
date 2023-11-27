@@ -1,42 +1,95 @@
 # Programming I: Final Project
 
-## Admin Role:
+This project has 7 classes:
 
-- [ ] Manage the database
-- [ ] Update all tables
+## 1. Person():
 
-## Student Role:
+Attribute: 
+- person_type(str)
+- person_ID(str)
+- person_first(str)
+- person_last(str)
 
-- [ ] See an invitational message from the lead
-- [ ] Accept or deny the invitation
-- [ ] See and modify project details
+## 2. Admin(Person):
 
-## Lead Student Role:
+Attribute: 
+- person_type(str): admin
+- person_ID(str)
+- person_first(str)
+- person_last(str)
 
-- [ ] Create a project
-- [ ] Find members
-- [ ] Send invitational messages to potential members
-- [ ] Add members to the project and form a group
-- [ ] See and modify own project details
-- [ ] Send request messages to potential advisors
-- [ ] Submit the final project report
+Method:
+- person_table_update()
+- login_table_update()
+- project_table_update()
+- advisor_pending_request_table_update()
+- member_pending_request_table_update()
 
-## Member Student Role:
+## 3. Student(Person):
 
-- [ ] See and modify own project details
+Attribute: 
+- person_type(str): student
+- person_ID(str)
+- person_first(str)
+- person_last(str)
 
-## Normal Faculty Role -- not an advisor:
+Method:
+- view_request()
+- accept_deny_request(): member_pending_request table, project_table table needs to be updated
+- change_to_lead(): must deny all member request first, project_table table, login table needs to be updated
+- view_project()
+- modify_project()
 
-- [ ] See request to be a supervisor
-- [ ] Send response denying to serve as an advisor
-- [ ] See details of all projects
-- [ ] Evaluate projects (details in proposal)
+## 4. Lead(Person):
 
-## Advising Faculty Role:
+Attribute: 
+- person_type(str): lead
+- person_ID(str)
+- person_first(str)
+- person_last(str)
 
-- [ ] See request to be a supervisor
-- [ ] Send accept response (for projects eventually serving as an advisor)
-- [ ] Send deny response (for projects not eventually serving as an advisor)
-- [ ] See details of all projects
-- [ ] Evaluate projects (details in proposal)
-- [ ] Approve the project
+Method: 
+- project_status()
+- modify_project(): project table needs to be updated
+- request_status()
+- send_member_request()
+- send_advisor_request(): advisor_pending_request table needs to be updated
+- submit_project()
+
+## 5. Member(Person):
+
+Attribute: 
+- person_type(str): member
+- person_ID(str)
+- person_first(str)
+- person_last(str)
+
+Method: 
+- project_status()
+- modify_project(): project table needs to be updated
+- request_status()
+
+## 6. Faculty(Person) -- Normal Faculty Role which is not an advisor:
+
+Attribute: 
+- person_type(str): faculty
+- person_ID(str)
+- person_first(str)
+- person_last(str)
+
+Method: 
+- view_supervisor_request()
+- send_accept_advisor_response()
+- send_deny_advisor_response()
+- view_project_details(): working with project table
+- evaluate_projects(): (details in proposal)
+
+## 7. Advising_Faculty(Faculty):
+
+Method: 
+- view_supervisor_request()
+- send_accept_advisor_response()
+- send_deny_advisor_response()
+- view_project_details(): working with project table
+- evaluate_projects(): (details in proposal)
+- approve_project()
