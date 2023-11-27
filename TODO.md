@@ -21,11 +21,7 @@ Attribute:
 - person_last(str)
 
 Method:
-- person_table_update()
-- login_table_update()
-- project_table_update()
-- advisor_pending_request_table_update()
-- member_pending_request_table_update()
+- modify_table()
 
 ## 3. Student(Person):
 
