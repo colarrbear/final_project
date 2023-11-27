@@ -17,11 +17,7 @@ The evaluation step is an important part of the senior project process. It allow
    - provide feedback to the lead student on the overall quality of the project report and on any specific areas that need improvement.
    - Calculate scores* (based on criteria if exist).
 
-4. **Reviewer Assignment (recheck):**
-   - Assign specific faculties to review each project.
-   - Ensure a fair evaluation process.
-
-5. **(*)Final Approval Step:**
+4. **(*)Final Approval Step:**
    - The advisor approves the project after successful evaluation.
 
 ## Code Outline for Evaluation:
@@ -29,11 +25,12 @@ The evaluation step is an important part of the senior project process. It allow
 ### In Project Class:
 
 ```python
-class Project:
-    def __init__(self, title, description, ...):
-        # Project initialization code
-    
-    def calculate_score(self):
+
+class Faculty:
+   ...
+
+
+    def calculate_score(self): ** # 3
         # Calculate the overall score based on defined criteria
         pass
         
@@ -44,10 +41,5 @@ class Project:
         # Calculate the overall score
         # Provide feedback to the lead student
 
-class Faculty:
-
-    def evaluate_project_report(self, project):
-        # Provide feedback on the project report based on established criteria
-        pass
-
-
+   
+   ...
