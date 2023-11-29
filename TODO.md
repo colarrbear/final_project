@@ -35,8 +35,7 @@ Method:
 - view_pending_requests()
 - accept_deny_request(): member_pending_request table, project_table table needs to be updated
 - change_to_lead(): must deny all member request first, project_table table, login table needs to be updated
-- view_project()
-- modify_project()
+- view_project_details()**: view project details before accept the request
 
 ## 4. Lead(Person):
 
@@ -79,12 +78,13 @@ Method:
 - view_supervisor_request()
 - send_accept_advisor_response()
 - send_deny_advisor_response()
-- view_project_details(): working with project table
-- evaluate_project(): (details in proposal)
+- view_project_details(): working with project table, can also see other advisor's project
+- evaluate_project(): (details in proposal)********************************************** need to be fix
 
 ## 7. Advising_Faculty(Faculty):
 
 Method: 
+- modify_project(): project table needs to be updated
 - view_supervisor_request()
 - send_accept_advisor_response()
 - send_deny_advisor_response()
