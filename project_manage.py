@@ -54,7 +54,7 @@ def initializing():
     # print(_database.table_name())  # check all table in database
 
 
-# define a funcion called login
+# define a function called login
 
 def login():
     """
@@ -63,7 +63,31 @@ def login():
     - ask a user for a username and password
     - returns [ID, role] if valid, otherwise returning None
     """
-    pass
+    while True:
+        username = input("Enter username: ")
+
+        # Search for the username in the login table
+        login_table = _database.search('Login table')
+
+        user_found = None
+        for user in login_table.table:
+            if user['username'] == username:
+                user_found = user
+                break
+
+        if user_found:
+            break
+        else:
+            print("Username not found. Please try again.")
+
+    # Once a valid username is found, ask for the password
+    password = input("Enter password: ")
+    if user_found['password'] == password:
+        return [user_found['ID'], user_found['role']]
+
+    else:
+        return None
+
 
 # define a function called exit
 
@@ -78,7 +102,21 @@ def exit():
         See the link below for a tutorial on how to do this:
         https://www.pythonforbeginners.com/basics/list-of-dictionaries-to-csv-in-python
     """
-    pass
+    for table in _database.database:
+        filename = table.table_name + '.csv'
+
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            if table.table:
+                headers = table.table[0].keys()
+
+                writer = csv.DictWriter(file, fieldnames=headers)
+
+                writer.writeheader()
+                writer.writerows(table.table)
+            else:
+                print(f"Table '{table.table_name}' is empty. No CSV file created.")
+
+    print("All tables have been written out to CSV files.")
 
 
 # make calls to the initializing and login functions defined above
@@ -89,6 +127,9 @@ val = login()
 """ based on the return value for login, activate the code that 
 performs activities according to the role defined for that person_id """
 
+class Student:
+    def __init__(self):
+        self.
 # if val[1] = 'admin':
 # see and do admin related activities
 # elif val[1] = 'student':

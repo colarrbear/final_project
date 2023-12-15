@@ -62,6 +62,20 @@ class DB:
             return any(row.get('ProjectID') == project_id for row in project_table.table)
         return False
 
+    # add create table below
+    # def create_table(self, table_name, initial_data=None):
+    #     """
+    #     Creates a new table in the database.
+    #
+    #     :param table_name: The name of the new table
+    #     :param initial_data: Optional initial data for the table, should be a list of dictionaries
+    #     """
+    #     if initial_data is None:
+    #         initial_data = []
+    #
+    #     new_table = Table(table_name, initial_data)
+    #     self.insert(new_table)
+
     # def __repr__(self):
     #     return self.database
     def __str__(self):
@@ -110,7 +124,7 @@ class Table:
     #         self.table.append(entry)
 
     # modify insert below
-    def insert(self, entry, db_instance=None):
+    def insert(self, entry, db_instance=None):  # insert table into all table list
         if self.table_name in ['Advisor_pending_request Table', 'Member_pending_request table']:
             project_id = entry.get('ProjectID')
             if project_id is not None and db_instance and not db_instance.project_id_exists(project_id):
@@ -119,6 +133,19 @@ class Table:
             if isinstance(entry, dict):
                 self.table.append(entry)
         # self.table.append(entry)
+
+    # add function "add field" below
+
+    def add_field_to_dicts(self, dicts_list, field_name, field_value):  # add field into dict(each table)
+        """
+        Add a new field to each dictionary in a list of dictionaries.
+
+        :param dicts_list: List of dictionaries
+        :param field_name: The name of the new field to add
+        :param field_value: The value of the new field
+        """
+        for dict_item in dicts_list:
+            dict_item[field_name] = field_value
 
     def filter(self, condition):
         filtered_table = Table(self.table_name + '_filtered', [])
