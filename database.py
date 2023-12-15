@@ -1,7 +1,10 @@
-# try wrapping the code below that reads a persons.csv file in a class and make it more general such that it can read in any csv file
+"""
+try wrapping the code below that reads a persons.csv file in a class
+and make it more general such that it can read in any csv file
+"""
 
 import csv, os, copy
-#
+
 # __location__ = os.path.realpath(
 #     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 #
@@ -12,45 +15,28 @@ import csv, os, copy
 #         persons.append(dict(r))
 # print(persons)
 
-# ================[ try wrapping: ]=================
-class CSVReader:
+
+class ReadCsv:
     def __init__(self, filename):
-        self.data = []
         self.filename = filename
-        self.__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        self.data = self.read_data()
 
-    def read_csv(self):
-        # data = []
-        with open(self.filename) as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                self.data.append(dict(row))
-        # return self.data
+    def read_data(self):
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        data = []
+        with open(os.path.join(__location__, self.filename)) as f:
+            rows = csv.DictReader(f)
+            for r in rows:
+                data.append(dict(r))
+        return data
 
-    # def update_csv(self):
-    #     # with open(self.table_name + '.csv', 'w', encoding='UTF8',newline='') as f:
-    #     #     writer = csv.writer(f)
-    #     #     writer.writerow(self.key)
-    #     #     for i in self.__data:
-    #     #         writer.writerow(i.values())
-    #     if not self.table:
-    #         print("Table is empty. Nothing to write.")
-    #         return
-    #
-    #     with open(os.path.join(self.__location__, f'{self.table_name}.csv'), 'w', encoding='UTF8', newline='') as f:
-    #         writer = csv.writer(f)
-    #
-    #         # Extract keys from the first element in the table
-    #         keys = list(self.table[0].keys())
-    #         writer.writerow(keys)
-    #
-    #         # Write data rows to the CSV file
-    #         for row in self.table:
-    #             writer.writerow(row.values())
+csv_reader = ReadCsv('persons.csv')
+# print(csv_reader.data)
 
-# ==================================================
 
-# add in code for a Database class
+"""
+add in code for a Database class
+"""
 
 
 class DB:
@@ -69,33 +55,43 @@ class DB:
                 return table
         return None
 
+    # add new def below
+    def project_id_exists(self, project_id):
+        project_table = self.search('Project Table')
+        if project_table:
+            return any(row.get('ProjectID') == project_id for row in project_table.table)
+        return False
+
     # def __repr__(self):
     #     return self.database
     def __str__(self):
         return '\n'.join(map(str, self.database))
 
-# add in code for a Table class
+
+"""
+add in code for a Table class
+"""
+
 
 class Table:
+    """
+    - modify the code in the Table class so that it supports the insert operation
+        where an entry can be added to a list of dictionary
+
+    - modify the code in the Table class so that it supports the update operation
+        where an entry's value associated with a key can be updated
+    """
+
     def __init__(self, table_name: str, table: list or dict):
         self.table_name = table_name
         self.table = table
-        self.__location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        # self.__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
     def update(self, user_id, key, value):
         for i in self.table:
             user_id_key = list(i.keys())[0]
             if i[user_id_key] == user_id:
                 i[key] = value
-    # def __is_float(self, element):
-    #     if element is None:
-    #         return False
-    #     try:
-    #         float(element)
-    #         return True
-    #     except ValueError:
-    #         return False
 
     def join(self, other_table, common_key):
         joined_table = Table(
@@ -109,9 +105,20 @@ class Table:
                     joined_table.table.append(dict1)
         return joined_table
 
-    def insert(self, entry):
-        if isinstance(entry, dict):
-            self.table.append(entry)
+    # def insert(self, entry):
+    #     if isinstance(entry, dict):
+    #         self.table.append(entry)
+
+    # modify insert below
+    def insert(self, entry, db_instance=None):
+        if self.table_name in ['Advisor_pending_request Table', 'Member_pending_request table']:
+            project_id = entry.get('ProjectID')
+            if project_id is not None and db_instance and not db_instance.project_id_exists(project_id):
+                raise ValueError(f"ProjectID {project_id} does not exist in Project Table.")
+        else:
+            if isinstance(entry, dict):
+                self.table.append(entry)
+        # self.table.append(entry)
 
     def filter(self, condition):
         filtered_table = Table(self.table_name + '_filtered', [])
@@ -139,17 +146,3 @@ class Table:
     def __str__(self):
         return self.table_name + ':' + str(self.table)
 
-# modify the code in the Table class so that it supports the insert operation where an entry can be added to a list of dictionary
-# modify the code in the Table class so that it supports the update operation where an entry's value associated with a key can be updated
-
-# =================[ test code below ]===============================
-# reader = CSVReader('persons.csv')
-# persons = reader.read_csv()
-#
-# test_table = Table('persons', persons)
-# print(test_table)
-# test_DB = DB()
-# test_DB.insert(test_table)
-#
-# test_output_table = test_DB.search("persons") # search the table
-# print(test_output_table)
