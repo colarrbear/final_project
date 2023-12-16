@@ -30,7 +30,7 @@ class ReadCsv:
                 data.append(dict(r))
         return data
 
-csv_reader = ReadCsv('persons.csv')
+# csv_reader = ReadCsv('persons.csv')
 # print(csv_reader.data)
 
 
@@ -43,7 +43,7 @@ class DB:
     def __init__(self):
         self.database = []
 
-    def table_name(self):
+    def get_all_table_name(self):
         return [i.table_name for i in self.database]
 
     def insert(self, table):
@@ -61,6 +61,24 @@ class DB:
         if project_table:
             return any(row.get('ProjectID') == project_id for row in project_table.table)
         return False
+
+    def add_table(self, table):  # equal to insert table into database
+        if table.table_name not in self.database:
+            self.database.append(table)
+
+    def get_table(self, table_name):
+        for table in self.database:
+            if table.table_name == table_name:
+                return table
+        return None
+
+    def create_table(self, table_name, initial_data=None):
+        if initial_data is None:
+            initial_data = None
+        new_table = Table(table_name, initial_data)
+        self.add_table(new_table)
+        return new_table
+
 
     # add create table below
     # def create_table(self, table_name, initial_data=None):
@@ -101,11 +119,67 @@ class Table:
         self.table = table
         # self.__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-    def update(self, user_id, key, value):
-        for i in self.table:
-            user_id_key = list(i.keys())[0]
-            if i[user_id_key] == user_id:
-                i[key] = value
+    # def add_data(self, new_data):
+    #     """Add multiple entries to the table."""
+    #     for entry in new_data:
+    #         self.table.append(entry)
+    #
+    # def update(self, identifier_key, identifier_value, key, value):
+    #     """Update a specific entry in the table."""
+    #     for entry in self.table:
+    #         if entry.get(identifier_key) == identifier_value:
+    #             entry[key] = value
+    #             break
+
+    def insert_data(self, new_data: dict):
+        """
+        Insert new data into the table.
+        Assumes all dictionaries in the table have the same keys.
+        """
+        if not self.table:
+            self.table.append(new_data)
+        else:
+            # Check if the keys in new_data match the keys in the existing table
+            existing_keys = set(self.table[0].keys())
+            new_data_keys = set(new_data.keys())
+
+            if existing_keys == new_data_keys:
+                self.table.append(new_data)
+            else:
+                raise KeyError("Keys in new data do not match keys in the table")
+
+    def update_data(self, identifier_key, identifier_value, update_key, update_value):
+        """
+        Update an existing entry in the table.
+        """
+        updated = False
+        for entry in self.table:
+            if entry.get(identifier_key) == identifier_value:
+                entry[update_key] = update_value
+                updated = True
+                break
+        if not updated:
+            raise KeyError(f"No entry found with {identifier_key} = {identifier_value}")
+
+    # def update(self, user_id, key, value):
+    #     for i in self.table:
+    #         user_id_key = list(i.keys())[0]
+    #         if i[user_id_key] == user_id:
+    #             i[key] = value
+
+
+    # def updateTable(self, identifier_key, identifier_value, update_values):
+    #     """
+    #     Update multiple values in an entry that matches the specified identifier key and value.
+    #
+    #     :param identifier_key: The key used to identify the entry to update.
+    #     :param identifier_value: The value of the identifier key for the entry to update.
+    #     :param update_values: A dictionary of key-value pairs to update in the entry.
+    #     """
+    #     for entry in self.table:
+    #         if entry.get(identifier_key) == identifier_value:
+    #             for key, value in update_values.items():
+    #                 entry[key] = value
 
     def join(self, other_table, common_key):
         joined_table = Table(
@@ -124,28 +198,37 @@ class Table:
     #         self.table.append(entry)
 
     # modify insert below
-    def insert(self, entry, db_instance=None):  # insert table into all table list
-        if self.table_name in ['Advisor_pending_request Table', 'Member_pending_request table']:
-            project_id = entry.get('ProjectID')
-            if project_id is not None and db_instance and not db_instance.project_id_exists(project_id):
-                raise ValueError(f"ProjectID {project_id} does not exist in Project Table.")
-        else:
-            if isinstance(entry, dict):
-                self.table.append(entry)
-        # self.table.append(entry)
-
-    # add function "add field" below
-
-    def add_field_to_dicts(self, dicts_list, field_name, field_value):  # add field into dict(each table)
-        """
-        Add a new field to each dictionary in a list of dictionaries.
-
-        :param dicts_list: List of dictionaries
-        :param field_name: The name of the new field to add
-        :param field_value: The value of the new field
-        """
-        for dict_item in dicts_list:
-            dict_item[field_name] = field_value
+    # def insert(self, entry, db_instance=None):  # insert table into all table list
+    #     if self.table_name in ['Advisor_pending_request Table', 'Member_pending_request table']:
+    #         project_id = entry.get('ProjectID')
+    #         if project_id is not None and db_instance and not db_instance.project_id_exists(project_id):
+    #             raise ValueError(f"ProjectID {project_id} does not exist in Project Table.")
+    #     else:
+    #         if isinstance(entry, dict):
+    #             self.table.append(entry)
+    #     # self.table.append(entry)
+    #
+    # def addData(self, entry):
+    #     """
+    #     Insert a new entry into the table.
+    #
+    #     :param entry: A dictionary representing the new entry.
+    #     """
+    #     if isinstance(entry, dict):
+    #         self.table.append(entry)
+    #
+    # # add function "add field" below
+    #
+    # def add_field_to_dicts(self, dicts_list, field_name, field_value):  # add field into dict(each table)
+    #     """
+    #     Add a new field to each dictionary in a list of dictionaries.
+    #
+    #     :param dicts_list: List of dictionaries
+    #     :param field_name: The name of the new field to add
+    #     :param field_value: The value of the new field
+    #     """
+    #     for dict_item in dicts_list:
+    #         dict_item[field_name] = field_value
 
     def filter(self, condition):
         filtered_table = Table(self.table_name + '_filtered', [])
