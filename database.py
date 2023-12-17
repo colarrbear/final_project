@@ -43,6 +43,52 @@ class DB:
     def __init__(self):
         self.database = []
 
+    # def update_all_csv_files(self):
+    #     global file_path
+    #     for table in self.database:
+    #         try:
+    #             file_path = f"{table.table_name}.csv"
+    #             if isinstance(table.table, list) and table.table:
+    #                 with open(file_path, mode='w', newline='') as file:
+    #                     writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
+    #                     writer.writeheader()
+    #                     writer.writerows(table.table)
+    #                     print(f"Updated file: {file_path}")
+    #
+    #             elif isinstance(table.table, dict):
+    #                 with open(file_path, mode='w', newline='') as file:
+    #                     writer = csv.writer(file)
+    #                     writer.writerow(table.table.keys())
+    #                     writer.writerow(table.table.values())
+    #                     print(f"Updated file: {file_path}")
+    #
+    #         except Exception as e:
+    #             print(f"Error updating {file_path}: {e}")
+    def write_to_csv(self):
+        for table in self.database:
+            if table.table:
+                with open(table.table_name + '.csv', mode='w', newline='') as file:
+                    fieldnames = table.table[0].keys()
+                    writer = csv.DictWriter(file, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(table.table)
+
+    # def update_all_csv_files(self):
+
+    #     for table in self.database:
+    #         if isinstance(table.table, list):
+    #             # Assuming each entry is a dictionary
+    #             with open(f"{table.table_name}.csv", mode='w', newline='') as file:
+    #                 writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
+    #                 writer.writeheader()
+    #                 writer.writerows(table.table)
+    #         elif isinstance(table.table, dict):
+    #             # Assuming the keys of the dictionary are used as header and the values as rows
+    #             with open(f"{table.table_name}.csv", mode='w', newline='') as file:
+    #                 writer = csv.writer(file)
+    #                 writer.writerow(table.table.keys())
+    #                 writer.writerow(table.table.values())
+
     def get_all_table_name(self):
         return [i.table_name for i in self.database]
 
@@ -65,12 +111,6 @@ class DB:
     def add_table(self, table):  # equal to insert table into database
         if table.table_name not in self.database:
             self.database.append(table)
-
-    def get_table(self, table_name):
-        for table in self.database:
-            if table.table_name == table_name:
-                return table
-        return None
 
     def create_table(self, table_name, initial_data=None):
         if initial_data is None:
