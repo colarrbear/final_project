@@ -142,143 +142,6 @@ def display_all_project():
               f"{p.get('Status').strip():<10}")
 
 
-class Admin:
-    def __init__(self, adminID):
-        self.adminID = adminID
-        # display_all_project()
-
-    @staticmethod
-    def get_project_id():
-        ask_name = input('Enter Project Name: ')
-        PROJECT = _database.search('project')
-        for project in PROJECT.table:
-            if project['Title'] == ask_name:
-                return project[ask_name]
-        return None
-
-    @staticmethod
-    def get_project_name():
-        PROJECT = _database.search('project')
-        display_all_project()
-        ask_id = input('Enter Project ID: ')
-        for project in PROJECT.table:
-            if project['ProjectID'] == ask_id:
-                return project[ask_id]
-        return None
-
-    # @staticmethod
-    # def modify_project_info(project_id, new_data):
-    #     # Check if the project exists
-    #     PROJECT = _database.search('project').table  # Assuming 'project' is the table name
-    #     __project_exists = _database.project_id_exists(project_id)
-    #     # __project_exists = any(project['ProjectID'] == project_id for project in project_table.table)
-    #
-    #     if __project_exists:
-    #         for key, value in new_data.items():
-    #             PROJECT.update_data('ProjectID', project_id, key, value)
-    #     else:
-    #         PROJECT.insert_data(new_data)
-
-    # def delete_table(self, table_name):
-    #     # Code to delete a table from the database
-    #     _database.delete(table_name)
-
-    def change_project_status(self):
-        while True:
-            display_all_project()
-            project_id = input("Enter Project ID: ")
-            __project_table = _database.search('project').table
-            if any(project['ProjectID'] == project_id for project in __project_table):
-                break
-            else:
-                print(f"Project with ID {project_id} not found.")
-        while True:
-            new_status = input('Select status to be change((1)ongoing/(2)done): ')
-            if new_status == '1':
-                new_status = 'ongoing'
-                break
-            elif new_status == '2':
-                new_status = 'done'
-                break
-            else:
-                print('Invalid Input')
-        __project_table = _database.search('project')
-        __project_table.update_data('ProjectID', project_id, 'Status',
-                                    new_status)
-
-    def show_all_professors(self, selected):
-        # Code to show all professors
-        PERSON = _database.search('persons')
-        professors = []
-        print('Professor List:')
-        for person in PERSON.table:
-            if person['type'] == 'faculty' and person not in selected:
-                print(f"ID: {person['ID']}, Name: {person['first']} {person['last']}")
-                professors.append(person)
-        return professors
-
-    # def modify_project_table(self, project_id, new_data):
-    #     # Check if the project exists
-    #     __project_exists = _database.search('project')  # Assuming 'project' is the table name
-    #     # __project_exists = any(project['ProjectID'] == project_id for project in project_table.table)
-    #
-    #     if __project_exists:
-    #         for project in __project_exists.table:
-    #             if project['ProjectID'] == project_id:
-    #                 for key, value in new_data.items():
-    #                     __project_exists.update_data('ProjectID', project_id, key, value)
-    #                 break
-    #     else:
-    #         __project_exists.insert_data(new_data)
-
-    def send_invite(self):
-        global project_id
-        selected_professor = []
-        selected = False
-
-        while not selected:
-            table_project = _database.search('project')
-            project_id = input("Enter Project ID: ")
-            for project in table_project.table:
-                if project['ProjectID'] == project_id:
-                    selected = True
-                    break
-                else:
-                    print("Invalid Project ID. Please try again.")
-
-        while len(selected_professor) < 3:
-            table_professor = self.show_all_professors(selected_professor)
-            professor_id = input("Enter Professor ID: ")
-            valid = False
-            for professor in table_professor:
-                if professor['ID'] == professor_id:
-                    selected_professor.append(professor)
-                    valid = True
-                    print(f'Selected: {len(selected_professor)} examiners.')
-                    break
-            if not valid:
-                print("Invalid Professor ID. Please try again.")
-
-        for professor in selected_professor:
-            examiner_pending = _database.search('Examiner_pending_request')
-            examiner_pending.insert_data(
-                {'ProjectID': project_id, 'to_be_examiners': professor['ID'],
-                 'response': 'None', 'response_date': 'None'})
-        return
-
-    def delete_project(self):
-        while True:
-            display_all_project()
-            project_id = input("Enter Project ID: ")
-            __project_table = _database.search('project').table
-            index_to_remove = next((index for index, entry in enumerate(__project_table) if
-                                    entry.get('ProjectID') == project_id), None)
-            if index_to_remove is not None:
-                __project_table.pop(index_to_remove)
-                break
-            else:
-                print(f"Project with ID {project_id} not found.")
-
 class Student:
     def __init__(self, sIDfromlogin):
         self.ID = self.get_id_from_username(sIDfromlogin)
@@ -867,7 +730,6 @@ class Member:
             project_info['Status'] = new_status
             print('Project status successfully updated')
 
-
     def view_responses_to_requests(self):
         MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
         ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
@@ -901,6 +763,17 @@ class Faculty:
     def get_id_from_username(sIDfromlogin):
         return sIDfromlogin
 
+    def is_advisor(self):
+        PROJECT = _database.search('project').table
+        return any(proj['Advisor'] == self.ID for proj in PROJECT)
+
+    def is_examiner(self):
+        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        PROJECT = _database.search('project').table
+        return any(req['to_be_examiners'] == self.ID and
+                   next((proj for proj in PROJECT if proj['ProjectID'] == req['ProjectID'] and proj['Advisor'] != self.ID), None)
+                   for req in EXAMINER_PENDING_REQUEST)
+
     def view_advisor_requests(self):
         ADVISOR_PENDING_REQUEST = _database.search(
             'Advisor_pending_request').table
@@ -910,16 +783,36 @@ class Faculty:
         for req in requests:
             print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
 
+    def is_advisor_for_project(self, project_id):
+        PROJECT = _database.search('project').table
+        project_info = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        return project_info and project_info['Advisor'] == self.ID
+
+    def is_project_without_advisor(self, project_id):
+        PROJECT = _database.search('project').table
+        project_info = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        return project_info and project_info['Advisor'] in [None, 'None', '']
+
     def send_advisor_response(self):
-        ADVISOR_PENDING_REQUEST = _database.search(
-            'Advisor_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        PROJECT = _database.search('project').table
         self.view_advisor_requests()
         project_id = input("Enter the Project ID for which to send response: ")
-        response = input("Enter your response (Accept/Deny): ")
 
-        valid_request = next((req for req in ADVISOR_PENDING_REQUEST if
-                              req['ProjectID'] == project_id and req[
-                                  'to_be_advisor'] == self.ID), None)
+        # Check if already an advisor for this project
+        if self.is_advisor_for_project(project_id):
+            print("You are already an advisor for this project.")
+            return
+
+        # Check if the project already has an advisor
+        project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
+        if project_info and project_info['Advisor'] not in [None, 'None', '']:
+            print("This project already has an advisor.")
+            return
+
+        # Process response
+        response = input("Enter your response (Accept/Deny): ")
+        valid_request = next((req for req in ADVISOR_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_advisor'] == self.ID), None)
         if valid_request:
             valid_request['Response'] = response
             valid_request['Response_date'] = current_date()
@@ -929,7 +822,16 @@ class Faculty:
 
     def view_examiner_requests(self):
         EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
-        requests = [req for req in EXAMINER_PENDING_REQUEST if req['to_be_examiners'] == self.ID]
+        PROJECT = _database.search('project').table
+
+        # Filter out examiner requests for projects where this faculty is the advisor
+        requests = []
+        for req in EXAMINER_PENDING_REQUEST:
+            if req['to_be_examiners'] == self.ID:
+                project = next((proj for proj in PROJECT if proj['ProjectID'] == req['ProjectID']), None)
+                if project and project['Advisor'] != self.ID:
+                    requests.append(req)
+
         print("Examiner Requests:")
         for req in requests:
             print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
@@ -947,7 +849,6 @@ class Faculty:
             print("Response sent successfully.")
         else:
             print("No matching request found.")
-
 
 class Advisor(Faculty):
     def __init__(self, sIDfromlogin):
@@ -996,6 +897,186 @@ class Advisor(Faculty):
             print(f"Project {project_id} approved successfully.")
         else:
             print("Project not found.")
+
+class Examiners(Faculty):
+    def __init__(self, sIDfromlogin):
+        super().__init__(sIDfromlogin)
+
+    def send_project_response(self):
+        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        self.view_examiner_requests()
+        project_id = input("Enter the Project ID for which to send response: ")
+        response = input("Enter your response (Accept/Deny): ")
+        comment = input("Enter your comment (optional): ")
+
+        valid_request = next((req for req in EXAMINER_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID), None)
+        if valid_request:
+            valid_request['Response'] = response
+            valid_request['Response_date'] = current_date()
+            valid_request['Comment'] = comment  # Adding a comment field to the request
+            print("Response and comment sent successfully.")
+        else:
+            print("No matching request found.")
+
+    def evaluate_project(self):
+        # Ensure the Examiners table exists in the database
+        if 'project_evaluations' not in _database.tables:
+            _database.create_table('project_evaluations', [])
+
+        PROJECT_EVALUATIONS = _database.search('project_evaluations').table
+        PROJECT = _database.search('project').table
+        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+
+        project_id = input("Enter the Project ID to evaluate: ")
+        score = input("Enter your evaluation score (1-10): ")
+        comment = input("Enter your comment (optional): ")
+
+        # Check if the faculty is an examiner and not an advisor for the project
+        is_examiner_for_project = any(req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID for req in EXAMINER_PENDING_REQUEST)
+        is_advisor_for_project = any(proj['ProjectID'] == project_id and proj['Advisor'] == self.ID for proj in PROJECT)
+
+        if is_examiner_for_project and not is_advisor_for_project:
+            # Create a new evaluation entry
+            new_evaluation = {
+                'ProjectID': project_id,
+                'ExaminerID': self.ID,
+                'Score': score,
+                'Comment': comment,
+                'Date': current_date()
+            }
+
+            # Add the evaluation to the table
+            PROJECT_EVALUATIONS.append(new_evaluation)
+            print(f"Evaluation for Project {project_id} added successfully.")
+
+            # Update the project_evaluations.csv file
+            _database.write_to_csv()
+        else:
+            print("You are not authorized to evaluate this project.")
+
+
+class Admin:
+    def __init__(self, adminID):
+        self.adminID = adminID
+        # display_all_project()
+
+    # @staticmethod
+    # def get_project_id():
+    #     ask_name = input('\nEnter Project Name: ')
+    #     PROJECT = _database.search('project')
+    #     for project in PROJECT.table:
+    #         if project['Title'] == ask_name:
+    #             return project[ask_name]
+    #     return None
+    #
+    # @staticmethod
+    # def get_project_name():
+    #     PROJECT = _database.search('project')
+    #     display_all_project()
+    #     ask_id = input('\nEnter Project ID: ')
+    #     for project in PROJECT.table:
+    #         if project['ProjectID'] == ask_id:
+    #             return project[ask_id]
+    #     return None
+
+
+    def change_project_status(self):
+        while True:
+            display_all_project()
+            project_id = input("\nEnter Project ID: ")
+            project_table = _database.search('project').table
+            if any(project['ProjectID'] == project_id for project in project_table):
+                break
+            else:
+                print(f"Project with ID {project_id} not found.")
+        while True:
+            new_status = input('Select status to be change((1)ongoing/(2)done): ')
+            if new_status == '1':
+                new_status = 'ongoing'
+                print('Status changed')
+                break
+            elif new_status == '2':
+                new_status = 'done'
+                print('Status changed')
+                break
+            else:
+                print('Invalid Input')
+        __project_table = _database.search('project')
+        __project_table.update_data('ProjectID', project_id, 'Status',
+                                    new_status)
+
+    def show_all_professors(self, selected):
+        # Code to show all professors
+        PERSON = _database.search('persons')
+        professors = []
+        print('Professor List:')
+        for person in PERSON.table:
+            if person['type'] == 'faculty' and person not in selected:
+                print(f"ID: {person['ID']}, Name: {person['first']} {person['last']}")
+                professors.append(person)
+        return professors
+
+    def send_invite(self):
+        global project_id
+        selected_professor = []
+        selected = False
+        project_table = _database.search('project').table
+
+        while not selected:
+            table_project = _database.search('project')
+            project_id = input("\nEnter Project ID: ")
+
+            # Check if the entered project ID exists
+            project_exists = any(
+                project['ProjectID'] == project_id for project in
+                table_project.table)
+
+            if project_exists:
+                selected = True
+            else:
+                print("Invalid Project ID. Please try again.")
+
+        while len(selected_professor) < 3:
+            table_professor = self.show_all_professors(selected_professor)
+            professor_id = input("\nEnter Professor ID: ")
+            if professor_id.strip() == '':
+                return
+            # Check if the entered ID is valid
+            professor = next((prof for prof in table_professor if
+                              prof['ID'] == professor_id), None)
+            if not professor:
+                print("Invalid Professor ID. Please try again.")
+                continue
+
+            # Check if the professor is already an advisor for the project
+            project_info = next((proj for proj in project_table if
+                                 proj['ProjectID'] == project_id), None)
+            if project_info and project_info['Advisor'] == professor_id:
+                print(
+                    'This faculty is already an advisor for this project. Cannot send invite.')
+            else:
+                selected_professor.append(professor)
+                print(f'Selected: {len(selected_professor)} examiners.')
+
+        for professor in selected_professor:
+            examiner_pending = _database.search('Examiner_pending_request')
+            examiner_pending.insert_data(
+                {'ProjectID': project_id, 'to_be_examiners': professor['ID'],
+                 'response': 'None', 'response_date': 'None'})
+        return
+
+    def delete_project(self):
+        while True:
+            display_all_project()
+            project_id = input("\nEnter Project ID: ")
+            __project_table = _database.search('project').table
+            index_to_remove = next((index for index, entry in enumerate(__project_table) if
+                                    entry.get('ProjectID') == project_id), None)
+            if index_to_remove is not None:
+                __project_table.pop(index_to_remove)
+                break
+            else:
+                print(f"Project with ID {project_id} not found.")
 
 
 # ... [main function] ...
@@ -1086,7 +1167,6 @@ if val[1] == 'student':
                 break
 
 # doesn't update code below
-
 elif val[1] == 'admin':
     # see and do admin related activities
     admin_instance = Admin(val[0])
@@ -1096,7 +1176,8 @@ elif val[1] == 'admin':
         print("1. Send Invite to Examinors")
         print("2. Change Project Status")
         print("3. Delete Project")
-        print("4. Exit")
+        print("4. Display all project information")
+        print("5. Exit")
         choice = input("\nEnter your choice: ")
         print()
         if choice == '1':
@@ -1107,67 +1188,56 @@ elif val[1] == 'admin':
         elif choice == '3':
             admin_instance.delete_project()
         elif choice == '4':
+            display_all_project()
+        elif choice == '5':
             break
         else:
             print("\nInvalid choice. Please try again.")
 
 elif val[1] == 'faculty':
     faculty_instance = Faculty(val[0])
+
     while True:
         print("\n=== Faculty Menu ===")
-        print("1. View Advisor Requests")
-        print("2. Respond to Advisor Request")
-        print("3. View Examiner Requests")
-        print("4. Respond to Examiner Request")
-        print("5. Exit")
-        print()
-        choice = input("\nEnter your choice: ")
-        print()
-        if choice == '1':
-            faculty_instance.view_advisor_requests()
-        elif choice == '2':
-            faculty_instance.send_advisor_response()
-        elif choice == '3':
-            faculty_instance.view_examiner_requests()
-        elif choice == '4':
-            faculty_instance.send_examiners_response()
-        elif choice == '5':
-            break
-        else:
-            print("\nInvalid choice. Please try again.")
-
-elif val[1] == 'advisor':
-    faculty_instance = Faculty(val[0])
-    advisor_instance = Advisor(faculty_instance)
-    while True:
-        print("\n=== Advisor Menu ===")
-        print("1. View Advisor Requests")
-        print("2. Send Advisor Response")
-        print("3. View Examiner Requests")
-        print("4. Send Examiner Response")
-        print("5. Modify Project")
-        print("6. Approve Project")
+        print("1. View Examiner Requests")
+        print("2. View Advisor Requests")
+        print("3. Respond as Examiner")
+        print("4. Respond as Advisor")
+        print("5. Select Advisor Role")
+        print("6. Select Examiner Role")
         print("7. Exit")
-        print()
         choice = input("\nEnter your choice: ")
-        print()
+
         if choice == '1':
-            advisor_instance.view_advisor_requests()
+            faculty_instance.view_examiner_requests()
         elif choice == '2':
-            advisor_instance.send_advisor_response()
+            faculty_instance.view_advisor_requests()
         elif choice == '3':
-            advisor_instance.view_examiner_requests()
+            if faculty_instance.is_examiner():
+                faculty_instance.send_examiners_response()
+            else:
+                print("You are not an examiner for any project.")
         elif choice == '4':
-            advisor_instance.send_examiners_response()
+            if faculty_instance.is_advisor():
+                faculty_instance.send_advisor_response()
+            else:
+                print("You are not an advisor for any project.")
         elif choice == '5':
-            advisor_instance.modify_project()
+            if faculty_instance.is_advisor():
+                advisor_instance = Advisor(val[0])
+                # Advisor specific choices...
+            else:
+                print("You are not an advisor for any project.")
         elif choice == '6':
-            advisor_instance.approve_project()
+            if faculty_instance.is_examiner():
+                examiners_instance = Examiners(val[0])
+                # Examiners specific choices...
+            else:
+                print("You are not an examiner for any project.")
         elif choice == '7':
             break
         else:
             print("\nInvalid choice. Please try again.")
-# see and do lead related activities
 
 # once everything is done, make a call to the exit function
 exit()

@@ -15,15 +15,6 @@ import csv, os, copy
 #         persons.append(dict(r))
 # print(persons)
 
-def get_info_dict(db, person_id):
-    temp = db.search("persons")
-    temp1 = temp.join(db.search("login"), "ID")
-    for i in temp1.table:
-        if i["ID"] == person_id:
-            return {"ID": i["ID"], "first": i["fist"], "last": i["last"], "user": i["username"],
-                    "role": i["role"]}
-        else:
-            continue
 
 class ReadCsv:
     def __init__(self, filename):
@@ -52,27 +43,6 @@ class DB:
     def __init__(self):
         self.database = []
 
-    # def update_all_csv_files(self):
-    #     global file_path
-    #     for table in self.database:
-    #         try:
-    #             file_path = f"{table.table_name}.csv"
-    #             if isinstance(table.table, list) and table.table:
-    #                 with open(file_path, mode='w', newline='') as file:
-    #                     writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
-    #                     writer.writeheader()
-    #                     writer.writerows(table.table)
-    #                     print(f"Updated file: {file_path}")
-    #
-    #             elif isinstance(table.table, dict):
-    #                 with open(file_path, mode='w', newline='') as file:
-    #                     writer = csv.writer(file)
-    #                     writer.writerow(table.table.keys())
-    #                     writer.writerow(table.table.values())
-    #                     print(f"Updated file: {file_path}")
-    #
-    #         except Exception as e:
-    #             print(f"Error updating {file_path}: {e}")
     def write_to_csv(self):
         for table in self.database:
             if table.table:
@@ -81,22 +51,6 @@ class DB:
                     writer = csv.DictWriter(file, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows(table.table)
-
-    # def update_all_csv_files(self):
-
-    #     for table in self.database:
-    #         if isinstance(table.table, list):
-    #             # Assuming each entry is a dictionary
-    #             with open(f"{table.table_name}.csv", mode='w', newline='') as file:
-    #                 writer = csv.DictWriter(file, fieldnames=table.table[0].keys())
-    #                 writer.writeheader()
-    #                 writer.writerows(table.table)
-    #         elif isinstance(table.table, dict):
-    #             # Assuming the keys of the dictionary are used as header and the values as rows
-    #             with open(f"{table.table_name}.csv", mode='w', newline='') as file:
-    #                 writer = csv.writer(file)
-    #                 writer.writerow(table.table.keys())
-    #                 writer.writerow(table.table.values())
 
     def get_all_table_name(self):
         return [i.table_name for i in self.database]
@@ -128,23 +82,6 @@ class DB:
         self.add_table(new_table)
         return new_table
 
-
-    # add create table below
-    # def create_table(self, table_name, initial_data=None):
-    #     """
-    #     Creates a new table in the database.
-    #
-    #     :param table_name: The name of the new table
-    #     :param initial_data: Optional initial data for the table, should be a list of dictionaries
-    #     """
-    #     if initial_data is None:
-    #         initial_data = []
-    #
-    #     new_table = Table(table_name, initial_data)
-    #     self.insert(new_table)
-
-    # def __repr__(self):
-    #     return self.database
     def __str__(self):
         return '\n'.join(map(str, self.database))
 
@@ -168,17 +105,6 @@ class Table:
         self.table = table
         # self.__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-    # def add_data(self, new_data):
-    #     """Add multiple entries to the table."""
-    #     for entry in new_data:
-    #         self.table.append(entry)
-    #
-    # def update(self, identifier_key, identifier_value, key, value):
-    #     """Update a specific entry in the table."""
-    #     for entry in self.table:
-    #         if entry.get(identifier_key) == identifier_value:
-    #             entry[key] = value
-    #             break
 
     def insert_data(self, new_data: dict):
         """
@@ -210,26 +136,6 @@ class Table:
         if not updated:
             raise KeyError(f"No entry found with {identifier_key} = {identifier_value}")
 
-    # def update(self, user_id, key, value):
-    #     for i in self.table:
-    #         user_id_key = list(i.keys())[0]
-    #         if i[user_id_key] == user_id:
-    #             i[key] = value
-
-
-    # def updateTable(self, identifier_key, identifier_value, update_values):
-    #     """
-    #     Update multiple values in an entry that matches the specified identifier key and value.
-    #
-    #     :param identifier_key: The key used to identify the entry to update.
-    #     :param identifier_value: The value of the identifier key for the entry to update.
-    #     :param update_values: A dictionary of key-value pairs to update in the entry.
-    #     """
-    #     for entry in self.table:
-    #         if entry.get(identifier_key) == identifier_value:
-    #             for key, value in update_values.items():
-    #                 entry[key] = value
-
     def join(self, other_table, common_key):
         joined_table = Table(
             self.table_name + '_joins_' + other_table.table_name, [])
@@ -241,43 +147,6 @@ class Table:
                     dict1.update(dict2)
                     joined_table.table.append(dict1)
         return joined_table
-
-    # def insert(self, entry):
-    #     if isinstance(entry, dict):
-    #         self.table.append(entry)
-
-    # modify insert below
-    # def insert(self, entry, db_instance=None):  # insert table into all table list
-    #     if self.table_name in ['Advisor_pending_request Table', 'Member_pending_request table']:
-    #         project_id = entry.get('ProjectID')
-    #         if project_id is not None and db_instance and not db_instance.project_id_exists(project_id):
-    #             raise ValueError(f"ProjectID {project_id} does not exist in Project Table.")
-    #     else:
-    #         if isinstance(entry, dict):
-    #             self.table.append(entry)
-    #     # self.table.append(entry)
-    #
-    # def addData(self, entry):
-    #     """
-    #     Insert a new entry into the table.
-    #
-    #     :param entry: A dictionary representing the new entry.
-    #     """
-    #     if isinstance(entry, dict):
-    #         self.table.append(entry)
-    #
-    # # add function "add field" below
-    #
-    # def add_field_to_dicts(self, dicts_list, field_name, field_value):  # add field into dict(each table)
-    #     """
-    #     Add a new field to each dictionary in a list of dictionaries.
-    #
-    #     :param dicts_list: List of dictionaries
-    #     :param field_name: The name of the new field to add
-    #     :param field_value: The value of the new field
-    #     """
-    #     for dict_item in dicts_list:
-    #         dict_item[field_name] = field_value
 
     def filter(self, condition):
         filtered_table = Table(self.table_name + '_filtered', [])
