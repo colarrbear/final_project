@@ -15,6 +15,15 @@ import csv, os, copy
 #         persons.append(dict(r))
 # print(persons)
 
+def get_info_dict(db, person_id):
+    temp = db.search("persons")
+    temp1 = temp.join(db.search("login"), "ID")
+    for i in temp1.table:
+        if i["ID"] == person_id:
+            return {"ID": i["ID"], "first": i["fist"], "last": i["last"], "user": i["username"],
+                    "role": i["role"]}
+        else:
+            continue
 
 class ReadCsv:
     def __init__(self, filename):
