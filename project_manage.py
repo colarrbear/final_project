@@ -597,43 +597,276 @@ class Lead:
             print("This student is not a lead. Please assign lead responsibilities first.")
 
     def see_project_status(self):
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
-        # PROJECT = _database.search('project').table
+        PROJECT = _database.search('project').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
 
-        # Assuming the student's project ID is stored in self.student.projectID
         project_id = self.myProject['ProjectID']
-        # project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
+        current_project = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
 
-        members_pending = any(req['ProjectID'] == project_id and req['Response'] == 'None' for req in MEMBER_PENDING_REQUEST)
-        advisor_pending = any(req['ProjectID'] == project_id and req['Response'] == 'None' for req in ADVISOR_PENDING_REQUEST)
+        # Check if both member slots are filled and an advisor is assigned
+        if current_project and current_project['Member1'] not in [None, 'None',
+                                                                  ''] and \
+                current_project['Member2'] not in [None, 'None', ''] and \
+                current_project['Advisor'] not in [None, 'None', '']:
+            status = "Ongoing"
 
-        if members_pending:
-            status = "Pending Member"
-        elif advisor_pending:
-            status = "Pending Advisor"
         else:
-            status = "Ready to Solicit an Advisor"
+            # Check pending status based on member and advisor requests
+            members_pending = any(
+                req['ProjectID'] == project_id and req['Response'] == 'None'
+                for req in MEMBER_PENDING_REQUEST)
+            advisor_pending = any(
+                req['ProjectID'] == project_id and req['Response'] == 'None'
+                for req in ADVISOR_PENDING_REQUEST)
+
+            if members_pending:
+                status = "Pending Member"
+            elif advisor_pending:
+                status = "Pending Advisor"
+            else:
+                status = "Ready to Solicit an Advisor"
         print(f"Project Status: {status}")
 
     def modify_project_info(self):
-        project_id = self.myProject['ProjectID']
+        # project_id = self.myProject['ProjectID']
         project_info = self.myProject  # project
-        print("Current Project Info:", project_info)
+        print("\nCurrent Project Info:")
+
+        headers = ["Attribute", "Value"]
+        print(f"{headers[0]:<15} | {headers[1]:<15}")
+        print("-" * 32)  # Separator line for header
+        for key, value in project_info.items():
+            print(f"{key:<15} | {str(value):<15}")
 
         new_title = input(
-            "Enter new title (leave blank to keep current): ")
+            "\nEnter new title (leave blank to keep current): ")
+        # if leave it blank, need to click enter twice
         new_status = input(
-            "Enter new status (leave blank to keep current): ")
+            "\nEnter new status (leave blank to keep current): ")
 
 
         # Update if necessary
         if new_title:
             project_info['Title'] = new_title
+            print('Project title successfully updated')
+
         if new_status:
             project_info['Status'] = new_status
+            print('Project status successfully updated')
 
-        # Reflect changes back to the database
+    def view_responses_to_requests(self):
+        PROJECT = _database.search('project').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
+        project_id = self.myProject['ProjectID']
+
+        # Check current project details
+        current_project = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
+
+        # Check if project already has 2 members
+        if current_project and current_project['Member1'] not in [None, 'None',
+                                                                  ''] and \
+                current_project['Member2'] not in [None, 'None', '']:
+            print(
+                f"Your project (ID: {project_id}) already has 2 members. No pending member requests.")
+        else:
+            # Print member responses in a table format
+            print("\nMember Responses:")
+            print(
+                f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
+            print("-" * 60)
+            for resp in MEMBER_PENDING_REQUEST:
+                if resp['ProjectID'] == project_id:
+                    print(
+                        f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+
+        # Check if project already has an advisor
+        if current_project and current_project['Advisor'] not in [None, 'None',
+                                                                  '']:
+            print(
+                f"Your project (ID: {project_id}) already has an advisor. No pending advisor requests.")
+        else:
+            # Print advisor responses in a table format
+            print("\nAdvisor Responses:")
+            print(
+                f"{'Project ID':<10} | {'Advisor ID':<10} | {'Response':<10} | {'Response Date':<15}")
+            print("-" * 60)
+            for resp in ADVISOR_PENDING_REQUEST:
+                if resp['ProjectID'] == project_id:
+                    print(
+                        f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+
+    # def view_responses_to_requests(self):
+    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+    #     ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+    #     project_id = self.myProject['ProjectID']
+    #
+    #     member_responses = [req for req in MEMBER_PENDING_REQUEST if req['ProjectID'] == project_id]
+    #     advisor_responses = [req for req in ADVISOR_PENDING_REQUEST if req['ProjectID'] == project_id]
+
+    #     print("\nMember Responses:")
+    #     print(
+    #         f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
+    #     print("-" * 60)
+    #     for resp in member_responses:
+    #         print(
+    #             f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+    #
+    #     # Print advisor responses in a table format
+    #     print("\nAdvisor Responses:")
+    #     print(
+    #         f"{'Project ID':<10} | {'Advisor ID':<10} | {'Response':<10} | {'Response Date':<15}")
+    #     print("-" * 60)
+    #     for resp in advisor_responses:
+    #         print(f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+
+    # def send_request_to_member(self, member_id):
+    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+    #     project_id = self.myProject['ProjectID']
+    #
+    #     uniqueID = len(MEMBER_PENDING_REQUEST)+1
+    #     # Add request to the table
+    #     new_request = {'uniqueID': uniqueID,'ProjectID': project_id, 'to_be_member': member_id, 'Response': 'None', 'Response_date': 'None'}
+    #     MEMBER_PENDING_REQUEST.append(new_request)
+    #     print('Request for Project Membership sent.')
+    def send_request_to_member(self):
+        PROJECT = _database.search('project').table
+        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+        project_id = self.myProject['ProjectID']
+
+        # Retrieve the current project information
+        current_project = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+
+        # Check if both member slots are filled
+        if current_project and current_project['Member1'] not in [None, 'None', ''] and current_project['Member2'] not in [None, 'None', '']:
+            print(f'Your project (ID: {project_id}) already has 2 members. Cannot send more invites.')
+            return
+
+        # Ask for the member ID to send the request
+        ask_member_id = input("\nEnter Member ID to send request: ")
+        if ask_member_id.strip() == '':
+            return
+
+        # Generate a unique ID for the new request
+        uniqueID = len(MEMBER_PENDING_REQUEST) + 1
+
+        # Add request to the table
+        new_request = {'uniqueID': uniqueID, 'ProjectID': project_id, 'to_be_member': ask_member_id, 'Response': 'None', 'Response_date': 'None'}
+        MEMBER_PENDING_REQUEST.append(new_request)
+        print('Request for Project Membership sent.')
+
+    def send_request_to_advisor(self):
+        PROJECT = _database.search('project').table
+        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        project_id = self.myProject['ProjectID']
+
+        # Retrieve the current project information
+        current_project = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+
+        # Check if an advisor already exists
+        if current_project and current_project['Advisor'] not in [None, 'None', '']:
+            print(f'Your project (ID: {project_id}) already has an advisor. Cannot send more invites.')
+            return
+
+        # Check if both member slots are filled
+        if not (current_project['Member1'] not in [None, 'None', ''] and current_project['Member2'] not in [None, 'None', '']):
+            print(f'Cannot invite advisor until both member slots are filled for the project (ID: {project_id}).')
+            return
+
+        # Ask for the advisor ID to send the request
+        ask_advisor_id = input("\nEnter Advisor ID to send request: ")
+
+        # Add request to the table
+        new_request = {'ProjectID': project_id, 'to_be_advisor': ask_advisor_id, 'Response': 'None', 'Response_date': 'None'}
+        ADVISOR_PENDING_REQUEST.append(new_request)
+        print('Request for Advisor sent.')
+
+
+class Member:
+    def __init__(self, student):
+        if not isinstance(student, Student):
+            raise ValueError("Invalid student instance")
+        self.student = student
+        self.myProject = self.get_project()
+
+    def get_project(self):
+        PROJECT = _database.search('project')
+        for project in PROJECT.table:
+            if self.student.ID == project.get("Member1") or self.student.ID == project.get("Member2"):
+                return project
+
+    def is_already_member(self):
+        return bool(self.myProject)
+
+    def see_project_status(self):
+        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+
+        # Assuming the student's project ID is stored in self.student.projectID
+        project_id = self.myProject['ProjectID']
+        current_project = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
+
+        # Check if both member slots are filled and an advisor is assigned
+        if current_project and current_project['Member1'] not in [None, 'None',
+                                                                  ''] and \
+                current_project['Member2'] not in [None, 'None', ''] and \
+                current_project['Advisor'] not in [None, 'None', '']:
+            status = "Ongoing"
+
+        else:
+            members_pending = any(
+                req['ProjectID'] == project_id and req['Response'] == 'None' for
+                req in MEMBER_PENDING_REQUEST)
+            advisor_pending = any(
+                req['ProjectID'] == project_id and req['Response'] == 'None' for
+                req in ADVISOR_PENDING_REQUEST)
+
+            if members_pending:
+                status = "Pending Member"
+            elif advisor_pending:  # advisor_pending
+                status = "Pending Advisor"
+            else:
+                status = "Waiting for lead to invite an advisor"
+
+        print(f"Project Status: {status}")
+
+    def modify_project_info(self):
+        project_info = self.myProject  # project
+        print("\nCurrent Project Info:")
+
+        headers = ["Attribute", "Value"]
+        print(f"{headers[0]:<15} | {headers[1]:<15}")
+        print("-" * 32)
+        for key, value in project_info.items():
+            print(f"{key:<15} | {str(value):<15}")
+
+        new_title = input(
+            "\nEnter new title (leave blank to keep current): ")
+        # if leave it blank, need to click enter twice
+        new_status = input(
+            "\nEnter new status (leave blank to keep current): ")
+
+
+        # Update if necessary
+        if new_title:
+            project_info['Title'] = new_title
+            print('Project title successfully updated')
+
+        if new_status:
+            project_info['Status'] = new_status
+            print('Project status successfully updated')
+
 
     def view_responses_to_requests(self):
         MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
@@ -646,7 +879,7 @@ class Lead:
         print("\nMember Responses:")
         print(
             f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
-        print("-" * 55)
+        print("-" * 60)
         for resp in member_responses:
             print(
                 f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
@@ -655,81 +888,9 @@ class Lead:
         print("\nAdvisor Responses:")
         print(
             f"{'Project ID':<10} | {'Advisor ID':<10} | {'Response':<10} | {'Response Date':<15}")
-        print("-" * 45)
+        print("-" * 60)
         for resp in advisor_responses:
-            print(
-                f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
-
-    def send_request_to_member(self, member_id):
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-        project_id = self.myProject['ProjectID']
-
-        uniqueID = len(MEMBER_PENDING_REQUEST)+1
-        # Add request to the table
-        new_request = {'uniqueID': uniqueID,'ProjectID': project_id, 'to_be_member': member_id, 'Response': 'None', 'Response_date': 'None'}
-        MEMBER_PENDING_REQUEST.append(new_request)
-        print('Request for Project Membership sent.')
-
-    def send_request_to_advisor(self, advisor_id):
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
-        project_id = self.myProject['ProjectID']
-
-        # Add request to the table
-        new_request = {'ProjectID': project_id, 'to_be_advisor': advisor_id, 'Response': 'None', 'Response_date': 'None'}
-        ADVISOR_PENDING_REQUEST.append(new_request)
-        print('Request for Project Advisor sent.')
-
-
-class Member:
-    def __init__(self, student):
-        if not isinstance(student, Student):
-            raise ValueError("Invalid student instance")
-        self.student = student
-        self.myProjects = self.get_projects()
-
-    def get_projects(self):
-        PROJECT = _database.search('project')
-        for project in PROJECT.table:
-            if self.student.ID == project.get("Member1") or self.student.ID == project.get("Member2"):
-                return project
-        # PROJECT = _database.search('project').table
-        # return [project for project in PROJECT if project['Member1'] == self.student.ID or project['Member2'] == self.student.ID]
-
-    def is_already_member(self):
-        return bool(self.myProjects)
-
-    def see_project_status(self):
-        for project in self.myProjects:
-            print(f"Project ID: {project['ProjectID']}, Status: {project['Status']}")
-
-    def modify_project_info(self):
-        project_id = self.myProjects['ProjectID']
-
-        project_info = self.myProjects
-        print("Current Project Info:", project_info)
-
-        new_title = input(
-            "Enter new title (leave blank to keep current): ")
-        new_status = input(
-            "Enter new status (leave blank to keep current): ")
-
-        # Update if necessary
-        if new_title:
-            project_info['Title'] = new_title
-        if new_status:
-            project_info['Status'] = new_status
-
-        # Update the database
-        project_id.update_data('ProjectID', project_id, 'Status',
-                               project_info['Status'])
-        project_id.update_data('ProjectID', project_id, 'Title',
-                               project_info['Title'])
-
-    def view_responses_to_requests(self):
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-        for request in MEMBER_PENDING_REQUEST:
-            if request['ProjectID'] == self.myProjects['ProjectID']:
-                print(f"Student ID: {request['to_be_member']}, Response: {request['Response']}, Date: {request['Response_date']}")
+            print(f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
 
 
 class Faculty:
@@ -799,7 +960,13 @@ class Advisor(Faculty):
         # Fetch and display current project information
         project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
         if project_info:
-            print("Current Project Info:", project_info)
+            print("Current Project Info:")
+
+            headers = ["Attribute", "Value"]
+            print(f"{headers[0]:<15} | {headers[1]:<15}")
+            print("-" * 32)  # Separator line for header
+            for key, value in project_info.items():
+                print(f"{key:<15} | {str(value):<15}")
 
             # Ask for new details
             new_title = input("Enter new title (leave blank to keep current): ")
@@ -842,89 +1009,6 @@ val = login()  # id, role
 """ based on the return value for login, activate the code that 
 performs activities according to the role defined for that person_id """
 
-# student_instance = None
-# if val[1] in ['student', 'member', 'lead']:
-#     student_instance = Student(val[0])
-#
-#
-# if val[1] == 'student':
-#     student_instance = Student(val[0])
-#     while True:
-#         print("\n=== Student Menu ===")
-#         print("1. View Pending Requests")
-#         print("2. Accept or Deny Requests")
-#         print("3. Create project")  # Change Role to Lead
-#         print("4. Exit")
-#         print()
-#         choice = input("Enter your choice: ")
-#         if choice == '1':
-#             student_instance.view_requests()
-#         elif choice == '2':
-#             student_instance.handle_requests()
-#         elif choice == '3':
-#             student_instance.change_to_lead()
-#         elif choice == '4':
-#             # exit()
-#             break
-#         else:
-#             print("Invalid choice. Please try again.")
-#
-# elif val[1] == 'member':
-#     if student_instance:
-#         member_instance = Member(student_instance)
-#         while True:
-#             print("\n=== Member Menu ===")
-#             print("1. View Project Status")
-#             print("2. Modify Project Info")
-#             print("3. View Responses to Requests")
-#             print("4. Exit")
-#             print()
-#             choice = input("Enter your choice: ")
-#             print()
-#             if choice == '1':
-#                 member_instance.see_project_status()
-#             elif choice == '2':
-#                 member_instance.modify_project_info()
-#             elif choice == '3':
-#                 member_instance.view_responses_to_requests()
-#             elif choice == '4':
-#                 exit()
-#                 break
-#             else:
-#                 print("Invalid choice. Please try again.")
-#
-#
-# elif val[1] == 'Lead':
-#     if student_instance:
-#         lead_instance = Lead(student_instance)
-#         while True:
-#             print("\n=== Lead Menu ===")
-#             print("1. View Project Status")
-#             print("2. Modify Project Info")
-#             print("3. View Responses to Requests")
-#             print("4. Send Request to Member")
-#             print("5. Send Request to Advisor")
-#             print("6. Exit")
-#             print()
-#             choice = input("Enter your choice: ")
-#             print()
-#             if choice == '1':
-#                 lead_instance.see_project_status()
-#             elif choice == '2':
-#                 lead_instance.modify_project_info()
-#             elif choice == '3':
-#                 lead_instance.view_responses_to_requests()
-#             elif choice == '4':
-#                 member_id = input("Enter Member ID to send request: ")
-#                 lead_instance.send_request_to_member(member_id)
-#             elif choice == '5':
-#                 advisor_id = input("Enter Advisor ID to send request: ")
-#                 lead_instance.send_request_to_advisor(advisor_id)
-#             elif choice == '6':
-#                 break
-#             else:
-#                 print("Invalid choice. Please try again.")
-
 
 if val[1] == 'student':
     student_instance = Student(val[0])
@@ -941,14 +1025,12 @@ if val[1] == 'student':
         while True:
             print("\n=== Lead Menu ===")
             print("1. View Project Status")
-            print("2. Modify Project Info")
+            print("2. Modify/View Project Info")
             print("3. View Responses to Requests")
             print("4. Send Request to Member")
             print("5. Send Request to Advisor")
             print("6. Exit")
-
-            choice = input("Enter your choice: ")
-
+            choice = input("\nEnter your choice: ")
             if choice == '1':
                 lead_instance.see_project_status()
             elif choice == '2':
@@ -956,25 +1038,23 @@ if val[1] == 'student':
             elif choice == '3':
                 lead_instance.view_responses_to_requests()
             elif choice == '4':
-                member_id = input("Enter Member ID to send request: ")
-                lead_instance.send_request_to_member(member_id)
+                lead_instance.send_request_to_member()
             elif choice == '5':
-                advisor_id = input("Enter Advisor ID to send request: ")
-                lead_instance.send_request_to_advisor(advisor_id)
+                lead_instance.send_request_to_advisor()
             elif choice == '6':
                 break
 
-    elif is_member:  # need to fix function
+    elif is_member:
         # Member functionalities
         member_instance = Member(student_instance)
         while True:
             print("\n=== Member Menu ===")
             print("1. View Project Status")
-            print("2. Modify Project Info")
+            print("2. Modify/View Project Info")
             print("3. View Responses to Requests")
             print("4. Exit")
 
-            choice = input("Enter your choice: ")
+            choice = input("\nEnter your choice: ")
 
             if choice == '1':
                 member_instance.see_project_status()
@@ -994,7 +1074,7 @@ if val[1] == 'student':
             print("3. Create project")  # Change Role to Lead
             print("4. Exit")
 
-            choice = input("Enter your choice: ")
+            choice = input("\nEnter your choice: ")
 
             if choice == '1':
                 student_instance.view_requests()
@@ -1017,8 +1097,7 @@ elif val[1] == 'admin':
         print("2. Change Project Status")
         print("3. Delete Project")
         print("4. Exit")
-        print()
-        choice = input("Enter your choice: ")
+        choice = input("\nEnter your choice: ")
         print()
         if choice == '1':
             display_all_project()
@@ -1030,7 +1109,7 @@ elif val[1] == 'admin':
         elif choice == '4':
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("\nInvalid choice. Please try again.")
 
 elif val[1] == 'faculty':
     faculty_instance = Faculty(val[0])
@@ -1042,7 +1121,7 @@ elif val[1] == 'faculty':
         print("4. Respond to Examiner Request")
         print("5. Exit")
         print()
-        choice = input("Enter your choice: ")
+        choice = input("\nEnter your choice: ")
         print()
         if choice == '1':
             faculty_instance.view_advisor_requests()
@@ -1055,7 +1134,7 @@ elif val[1] == 'faculty':
         elif choice == '5':
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("\nInvalid choice. Please try again.")
 
 elif val[1] == 'advisor':
     faculty_instance = Faculty(val[0])
@@ -1070,7 +1149,7 @@ elif val[1] == 'advisor':
         print("6. Approve Project")
         print("7. Exit")
         print()
-        choice = input("Enter your choice: ")
+        choice = input("\nEnter your choice: ")
         print()
         if choice == '1':
             advisor_instance.view_advisor_requests()
@@ -1087,7 +1166,7 @@ elif val[1] == 'advisor':
         elif choice == '7':
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("\nInvalid choice. Please try again.")
 # see and do lead related activities
 
 # once everything is done, make a call to the exit function
