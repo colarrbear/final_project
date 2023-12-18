@@ -69,18 +69,26 @@ This section outlines the current limitations and known issues in the Senior Pro
 
 ### Known Bugs
 
-1. **Advisor Role Limitations**
-   - **Description**: Advisors may experience limited access to project details, restricting their ability to provide comprehensive feedback.
-   - **Impact**: Affects the advisor's role in guiding and assessing project progress.
+1. **Inconsistent Project Status**
+   - **Description**: Discrepancies in project status may occur within the database.
+   - **Impact**: Affects data integrity and may lead to confusion in tracking project progress.
 
-2. **Admin Communication with Lead Students**
-   - **Description**: Currently, there is no direct communication channel within the system for admins to relay feedback or evaluations to lead students.
-   - **Impact**: Lead students may not receive timely or detailed feedback on their projects, impacting project development.
+2. **Lead Role: Member ID Input Restriction**
+   - **Description**: The system requires member IDs to be either integers or floats, which may not always be practical or possible.
+   - **Impact**: Limits the flexibility in managing member information and might cause input errors.
+
+3. **Advisor Role Limitations**
+   - **Description**: Advisors have limited access to project details, hindering their ability to provide comprehensive feedback.
+   - **Impact**: Affects the advisor's role in guiding and assessing projects.
+
+4. **Admin Communication with Lead Students**
+   - **Description**: No direct communication channel within the system for admins to relay feedback to lead students.
+   - **Impact**: Lead students may miss out on timely and detailed feedback.
 
 ### Future Development
 
-- These missing features and bugs are scheduled for review in the next development cycle.
-- Feedback and contributions to address these issues are welcome and can be submitted through the project's GitHub repository.
+- Addressing these issues is a priority for the next development cycle.
+- Contributions to resolve these problems are welcome via the project's GitHub repository.
 
-For detailed information on each role and its functionalities, please refer to the [detailed role and action table](https://kasets.art/gUrsiY).
+For more details on each role and functionality, refer to the [detailed role and action table](https://kasets.art/gUrsiY).d information on each role and its functionalities, please refer to the [detailed role and action table](https://kasets.art/gUrsiY).
 
