@@ -13,13 +13,13 @@
 ### Python Files
 1. `project_manage.py`
    Contains 7 classes:
-   - **class Student**: Display all project membership invitations sent to the student and allow responses.
-   - **class Lead**: Manage project status, info, and requests.
-   - **class Member**: View project status and responses to requests.
+   - **class Student**: Display all project membership invitations sent to the student and allow responses and propose a new project and automatically become its Lead.
+   - **class Lead**: View and manage project status, info, and requests.
+   - **class Member**: View project status, responses to requests and manage project info.
    - **class Faculty**: Handle examiner and advisor requests, and respond to invitations.
-   - **class Advisor (Faculty)**: Modify and approve projects.
-   - **class Examiners (Faculty)**: Approve/deny and evaluate projects.
-   - **class Admin**: Manage projects, send examiner invites, change project statuses, and delete projects.
+   - **class Advisor(Faculty)**: Modify and approve/deny projects.
+   - **class Examiners(Faculty)**: Approve/deny, give comment and evaluate projects.
+   - **class Admin**: Manage projects, view or send examiner invites, change project statuses, and delete projects.
 
 2. `database.py` 
    Contains 2 classes:
@@ -47,9 +47,39 @@ To get started with the Senior Project Managing Program, follow these steps to c
 
 For a comprehensive overview of each role and the corresponding actions within our project, please refer to the external table. This table provides a detailed breakdown of roles, actions they can perform, associated methods, and relevant classes within the project. 
 
-To view this table, please follow the link below:
+## Role-Based Actions and Completion Status
 
-[**Click here to see the detailed table of each role and its actions**](https://kasets.art/gUrsiY)
+| Role     | Action                         | Method                        | Class           | Completion Percentage |
+|----------|--------------------------------|-------------------------------|-----------------|-----------------------|
+| Lead     | View Project Status            | `see_project_status()`        | Lead            | 100%                  |
+| Lead     | Modify/View Project Info       | `modify_project_info()`       | Lead            | 100%                  |
+| Lead     | View Responses to Requests     | `view_responses_to_requests()`| Lead            | 100%                  |
+| Lead     | Send Request to Member         | `send_request_to_member()`    | Lead            | 100%                  |
+| Lead     | Send Request to Advisor        | `send_request_to_advisor()`   | Lead            | 100%                  |
+| Lead     | Exit (save changes to database)| `exit()`                      | -               | 100%                  |
+| Member   | View Project Status            | `see_project_status()`        | Member          | 100%                  |
+| Member   | Modify/View Project Info       | `modify_project_info()`       | Member          | 100%                  |
+| Member   | View Responses to Requests     | `view_responses_to_requests()`| Member          | 100%                  |
+| Member   | Exit (save changes to database)| `exit()`                      | -               | 100%                  |
+| Student  | View Pending Requests          | `view_requests()`             | Student         | 100%                  |
+| Student  | Accept or Deny Requests        | `handle_requests()`           | Student         | 100%                  |
+| Student  | Create project                 | `change_to_lead()`            | Student         | 100%                  |
+| Student  | Exit (save changes to database)| `exit()`                      | -               | 100%                  |
+| Admin    | Send Invite to Examiners       | `send_invite()`               | Admin           | 100%                  |
+| Admin    | Change Project Status          | `change_project_status()`     | Admin           | 100%                  |
+| Admin    | Delete Project                 | `delete_project()`            | Admin           | 100%                  |
+| Admin    | Display all project information| `display_all_project()`       | Admin           | 100%                  |
+| Admin    | View all examiners invite      | `view_all_invites()`          | Admin           | 100%                  |
+| Admin    | Delete examiners Invite        | `delete_invite()`             | Admin           | 100%                  |
+| Faculty  | View Examiner Requests         | `view_examiner_requests()`    | Faculty         | 100%                  |
+| Faculty  | View Advisor Requests          | `view_advisor_requests()`     | Faculty         | 100%                  |
+| Faculty  | Accept/Deny Examiner Invite    | `accept_deny_examiners_invite()` | Faculty     | 100%                  |
+| Faculty  | Accept/Deny Advisor Invite     | `accept_deny_advisor_request()`| Faculty       | 100%                  |
+| Advisor  | Modify Project                 | `modify_project()`            | Advisor(Faculty)| 100%                  |
+| Advisor  | Approve Project                | `approve_project()`           | Advisor(Faculty)| 100%                  |
+| Examiner | Approve/Deny Project           | `send_project_response()`     | Examiner(Faculty)| 100%                 |
+| Examiner | Evaluate Project               | `evaluate_project()`          | Examiner(Faculty)| 100%                 |
+
 
 ## Missing Features and Known Bugs
 
@@ -88,7 +118,4 @@ This section outlines the current limitations and known issues in the Senior Pro
 ### Future Development
 
 - Addressing these issues is a priority for the next development cycle.
-- Contributions to resolve these problems are welcome via the project's GitHub repository.
-
-For more details on each role and functionality, refer to the [detailed role and action table](https://kasets.art/gUrsiY).d information on each role and its functionalities, please refer to the [detailed role and action table](https://kasets.art/gUrsiY).
-
+- Suggestions/comments are welcome.
