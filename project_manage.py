@@ -979,7 +979,6 @@ class Admin:
     #             return project[ask_id]
     #     return None
 
-
     def change_project_status(self):
         while True:
             display_all_project()
@@ -1016,54 +1015,127 @@ class Admin:
                 professors.append(person)
         return professors
 
+    # def send_invite(self):
+    #     global project_id
+    #     selected_professor = []
+    #     selected = False
+    #     project_table = _database.search('project').table
+    #
+    #     while not selected:
+    #         table_project = _database.search('project')
+    #         project_id = input("\nEnter Project ID: ")
+    #
+    #         # Check if the entered project ID exists
+    #         project_exists = any(
+    #             project['ProjectID'] == project_id for project in
+    #             table_project.table)
+    #
+    #         if project_exists:
+    #             selected = True
+    #         else:
+    #             print("Invalid Project ID. Please try again.")
+    #
+    #     while len(selected_professor) < 3:
+    #         table_professor = self.show_all_professors(selected_professor)
+    #         professor_id = input("\nEnter Professor ID: ")
+    #         if professor_id.strip() == '':
+    #             return
+    #         # Check if the entered ID is valid
+    #         professor = next((prof for prof in table_professor if
+    #                           prof['ID'] == professor_id), None)
+    #         if not professor:
+    #             print("Invalid Professor ID. Please try again.")
+    #             continue
+    #
+    #         # Check if the professor is already an advisor for the project
+    #         project_info = next((proj for proj in project_table if
+    #                              proj['ProjectID'] == project_id), None)
+    #         if project_info and project_info['Advisor'] == professor_id:
+    #             print(
+    #                 'This faculty is already an advisor for this project. Cannot send invite.')
+    #         else:
+    #             selected_professor.append(professor)
+    #             print(f'Selected: {len(selected_professor)} examiners.')
+    #
+    #     for professor in selected_professor:
+    #         examiner_pending = _database.search('Examiner_pending_request')
+    #         examiner_pending.insert_data(
+    #             {'ProjectID': project_id, 'to_be_examiners': professor['ID'],
+    #              'Response': 'None', 'Response_date': 'None'})
+    #     return
+
     def send_invite(self):
         global project_id
         selected_professor = []
         selected = False
         project_table = _database.search('project').table
+        examiner_pending_table = _database.search('Examiner_pending_request').table
 
         while not selected:
-            table_project = _database.search('project')
             project_id = input("\nEnter Project ID: ")
-
-            # Check if the entered project ID exists
-            project_exists = any(
-                project['ProjectID'] == project_id for project in
-                table_project.table)
-
+            project_exists = any(project['ProjectID'] == project_id for project in project_table)
             if project_exists:
                 selected = True
             else:
                 print("Invalid Project ID. Please try again.")
+
+        # Check if the project already has 3 accepted examiners
+        accepted_examiners = [req for req in examiner_pending_table if req['ProjectID'] == project_id and req['Response'].lower() == 'accept']
+        if len(accepted_examiners) >= 3:
+            print("This project already has 3 accepted examiners. Cannot send more invites.")
+            return
 
         while len(selected_professor) < 3:
             table_professor = self.show_all_professors(selected_professor)
             professor_id = input("\nEnter Professor ID: ")
             if professor_id.strip() == '':
                 return
-            # Check if the entered ID is valid
-            professor = next((prof for prof in table_professor if
-                              prof['ID'] == professor_id), None)
+
+            professor = next((prof for prof in table_professor if prof['ID'] == professor_id), None)
             if not professor:
                 print("Invalid Professor ID. Please try again.")
                 continue
 
-            # Check if the professor is already an advisor for the project
-            project_info = next((proj for proj in project_table if
-                                 proj['ProjectID'] == project_id), None)
+            # Check if the professor is already an advisor or has a pending invite for the project
+            project_info = next((proj for proj in project_table if proj['ProjectID'] == project_id), None)
+            existing_invite = next((req for req in examiner_pending_table if req['ProjectID'] == project_id and req['to_be_examiners'] == professor_id), None)
             if project_info and project_info['Advisor'] == professor_id:
-                print(
-                    'This faculty is already an advisor for this project. Cannot send invite.')
+                print('This faculty is already an advisor for this project. Cannot send invite.')
+            elif existing_invite:
+                print(f'An invite has already been sent to Professor ID {professor_id} for this project.')
             else:
                 selected_professor.append(professor)
                 print(f'Selected: {len(selected_professor)} examiners.')
 
         for professor in selected_professor:
-            examiner_pending = _database.search('Examiner_pending_request')
-            examiner_pending.insert_data(
-                {'ProjectID': project_id, 'to_be_examiners': professor['ID'],
-                 'response': 'None', 'response_date': 'None'})
-        return
+            examiner_pending_table.append(
+                {'ProjectID': project_id, 'to_be_examiners': professor['ID'], 'Response': 'None', 'Response_date': 'None'})
+            print(f"Invite sent to Professor ID {professor['ID']}.")
+    def view_all_invites(self):
+        examiner_pending_table = _database.search('Examiner_pending_request').table
+        print("\nAll Examiner Invites:")
+        for req in examiner_pending_table:
+            print(f"Project ID: {req['ProjectID']}, Examiner ID: {req['to_be_examiners']}, Response: {req['Response']}, Date: {req['Response_date']}")
+
+    def delete_invite(self):
+        examiner_pending_table = _database.search('Examiner_pending_request').table
+        self.view_all_invites()
+
+        project_id = input("\nEnter the Project ID for which to delete an invite: ")
+        professor_id = input("Enter the Professor ID for which to delete the invite: ")
+        # Find the invite in the examiner_pending_request table
+        invite_index = None
+        for i, invite in enumerate(examiner_pending_table):
+            if invite['ProjectID'] == project_id and invite['to_be_examiners'] == professor_id:
+                invite_index = i
+                break
+
+        if invite_index is not None:
+            # Delete the invite
+            del examiner_pending_table[invite_index]
+            print(f"Invite for Project ID {project_id} and Professor ID {professor_id} has been deleted.")
+        else:
+            print("No matching invite found.")
 
     def delete_project(self):
         while True:
@@ -1177,7 +1249,9 @@ elif val[1] == 'admin':
         print("2. Change Project Status")
         print("3. Delete Project")
         print("4. Display all project information")
-        print("5. Exit")
+        print("5. View all examiners invite")
+        print("6. Delete examiners Invite")
+        print("7. Exit")
         choice = input("\nEnter your choice: ")
         print()
         if choice == '1':
@@ -1190,6 +1264,10 @@ elif val[1] == 'admin':
         elif choice == '4':
             display_all_project()
         elif choice == '5':
+            admin_instance.view_all_invites()
+        elif choice == '6':
+            admin_instance.delete_invite()
+        elif choice == '7':
             break
         else:
             print("\nInvalid choice. Please try again.")
