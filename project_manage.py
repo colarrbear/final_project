@@ -917,6 +917,37 @@ class Advisor(Faculty):
         else:
             print("Invalid project selection.")
 
+    def approve_project(self):
+        project_data = _database.search('project').table
+        PROJECT = _database.search('project')
+
+        print("Your Projects:")
+        for proj in self.myProject:
+            print(f"Project ID: {proj['ProjectID']}, Title: {proj['Title']}")
+
+        project_id = input("Enter the Project ID to approve or deny: ")
+
+        if project_id not in [p['ProjectID'] for p in self.myProject]:
+            print("Invalid Project ID or project not under your advisory.")
+            return
+
+        project_info = next(
+            (p for p in project_data if p['ProjectID'] == project_id), None)
+        if project_info:
+            response = input(
+                "Do you want to approve or deny the project? (approve/deny): ").lower()
+            if response in ['approve', 'deny']:
+                new_status = 'Approved' if response == 'approve' else 'Denied'
+                # Assuming 'project' is the table name in the database
+                PROJECT.update_data('ProjectID', project_id, 'Status',
+                                    new_status)
+                print(
+                    f"Project {project_id} {new_status.lower()} successfully.")
+            else:
+                print("Invalid response. No action taken.")
+        else:
+            print("Project not found.")
+
 
 class Examiners(Faculty):
     def __init__(self, sIDfromlogin):
