@@ -1,93 +1,45 @@
-# Programming I: Final Project
+### `Student` Role Methods
 
-This project has 7 classes:
+1. **view_requests**: This method should display all the project membership invitations sent to the student. It filters the requests where the student is listed as a potential member (`to_be_member`) and shows details such as project ID, response, and response date.
 
---- 
+2. **handle_requests**: This method enables the student to respond to project invitations. It presents the student with pending requests and allows them to accept or deny each one.
 
-## 1. Person():
+3. **change_to_lead**: Allows a student to take on the role of a project lead. This method might involve updating the project table to set the student as the lead for a specific project.
 
-Attribute: 
-- person_type(str)
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+### `Admin` Role Methods
 
-## 2. Admin(Person):
+1. **send_invite**: This method is for sending invitations to faculty members to become examiners for projects. It likely involves updating an examiners table with new entries for each invite.
 
-Attribute: 
-- person_type(str): admin
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+2. **change_project_status**: Used to update the status of a project, such as from 'ongoing' to 'completed'. It involves modifying the project's record in the project table.
 
-Method:
-- modify_table()
+3. **delete_project**: Allows for the removal of a project from the project table.
 
-## 3. Student(Person):
+4. **display_all_project**: This function should list all projects in the project table, showing details like project ID, title, members, advisor, and status.
 
-Attribute: 
-- person_type(str): student
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+5. **view_all_invites**: Used to view all sent examiner invitations. It might involve fetching and displaying data from an examiner invites table.
 
-Method:
-- view_pending_requests()
-- accept_deny_request(): member_pending_request table, project_table table needs to be updated
-- change_to_lead(): must deny all member request first, project_table table, login table needs to be updated
-- view_project_details()**: view project details before accept the request
+6. **delete_invite**: This method is for deleting an examiner invite, possibly from an examiner invites table.
 
-## 4. Lead(Person):
+### `Faculty` Role Methods
 
-Attribute: 
-- person_type(str): lead
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+1. **view_examiner_requests**: Shows all requests for the faculty member to become an examiner for various projects.
 
-Method: 
-- project_status()
-- modify_project(): project table needs to be updated
-- request_status()
-- send_member_request()
-- send_advisor_request(): advisor_pending_request table needs to be updated
-- submit_project()
+2. **view_advisor_requests**: Displays requests for the faculty member to act as an advisor for projects.
 
-## 5. Member(Person):
+3. **accept_deny_examiners_invite**: Allows the faculty member to accept or deny examiner invitations.
 
-Attribute: 
-- person_type(str): member
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+4. **accept_deny_advisor_request**: Enables the faculty member to accept or deny requests to be an advisor.
 
-Method: 
-- project_status()
-- modify_project(): project table needs to be updated
-- request_status()
+5. **advisor**: Check if the current faculty member is an advisor for any project. If they are, they should be able to perform advisor-specific tasks.
 
-## 6. Faculty(Person) -- Normal Faculty Role which is not an advisor:
+6. **examiner**: check if the current faculty member is an examiner for any project. If they are, they should be able to perform examiner-specific tasks.
 
-Attribute: 
-- person_type(str): faculty
-- person_ID(str)
-- person_first(str)
-- person_last(str)
+### `Advisor` and `Examiners` Specific Methods
 
-Method: 
-- view_supervisor_request()
-- send_accept_advisor_response()
-- send_deny_advisor_response()
-- view_project_details(): working with project table, can also see other advisor's project
-- evaluate_project(): (details in proposal)********************************************** need to be fix
+1. **modify_project (Advisor)**: Allows an advisor to make changes to the details of a project they are advising.
 
-## 7. Advising_Faculty(Faculty):
+2. **approve_project (Advisor)**: Used by an advisor to approve a project.
 
-Method: 
-- modify_project(): project table needs to be updated
-- view_supervisor_request()
-- send_accept_advisor_response()
-- send_deny_advisor_response()
-- view_project_details(): working with project table
-- evaluate_projects(): (details in proposal)
-- approve_project()
+3. **send_project_response (Examiners)**: Allows an examiner to send their response or feedback on a project.
+
+4. **evaluate_project (Examiners)**: Used by examiners to evaluate and provide a detailed assessment of a project.
