@@ -43,6 +43,10 @@ class DB:
     def __init__(self):
         self.database = []
 
+    def table_exists(self, table_name):
+        return table_name in self.database
+
+
     def write_to_csv(self):
         for table in self.database:
             if table.table:

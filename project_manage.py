@@ -1,30 +1,12 @@
-# import database module
-# import csv, database
 from database import *
 from datetime import datetime
-import random, sys
+import random
 
-# define a funcion called initializing
+# define a function called initializing
 
 _database = DB()
 
-# Member_pending_request_table = _database.search('Member_pending_request')
-# ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request')
-# PROJECT = _database.search('project')
-# LOGIN = _database.search('login')
-# PERSON = _database.search('persons')
 
-
-def generate_random_project_id():
-    """
-    Generates a random 4-digit ID for a project.
-    Returns a string of 4 digits.
-    """
-    __random_project_id = f"{random.randint(0, 9999):04d}"
-    return __random_project_id
-
-
-random_project_id = generate_random_project_id()
 
 
 def current_date():
@@ -36,8 +18,10 @@ def current_date():
 def initializing():
     """
     here are things to do in this function:
-    - create an object to read all csv files that will serve as a persistent state for this program
-    - create an object to read all csv files that will serve as a persistent state for this program
+    - create an object to read all csv files that will serve as a persistent
+        state for this program
+    - create an object to read all csv files that will serve as a persistent
+        state for this program
     - create all the corresponding tables for those csv files
     - see the guide how many tables are needed
     - add all these tables to the database
@@ -62,7 +46,6 @@ def initializing():
                                  read_advisorRequest.data)
     _database.insert(advisorRequest_table)
 
-
     read_memberRequest = ReadCsv('Member_pending_request.csv')
     memberRequest_table = Table('Member_pending_request',
                                 read_memberRequest.data)
@@ -72,6 +55,7 @@ def initializing():
     examiners_pending_table = Table('Examiner_pending_request',
                                     read_examiners_pending.data)
     _database.insert(examiners_pending_table)
+
 
 # define a function called login
 
@@ -99,7 +83,6 @@ def login():
                 for person in login_table.table:
                     if person['ID'] == user_found['ID']:
                         return [user_found['ID'], person['role']]
-                    # return None  # Return None if the ID is not found in the persons table
             else:
                 print('Password is wrong. Try again.')
 
@@ -112,14 +95,17 @@ def login():
 def exit():
     """
     here are things to do in this function:
-    - write out all the tables that have been modified to the corresponding csv files
-    - By now, you know how to read in a csv file and transform it into a list of dictionaries.
+    - write out all the tables that have been modified
+        to the corresponding csv files
+    - By now, you know how to read in a csv file and transform it
+        into a list of dictionaries.
         For this project, you also need to know how to do the reverse,
         i.e., writing out to a csv file given a list of dictionaries.
         See the link below for a tutorial on how to do this:
         https://www.pythonforbeginners.com/basics/list-of-dictionaries-to-csv-in-python
     """
     _database.write_to_csv()
+
 
 # function part
 ############################################################
@@ -130,7 +116,8 @@ def display_all_project():
     print("All Projects:\n")
     # Header
     print(
-        f"{'Project ID':<10} | {'Title':<15} | {'Lead':<10} | {'Member1':<10} | {'Member2':<10} | {'Advisor':<10} | {'Status':<10}")
+        f"{'Project ID':<10} | {'Title':<15} | {'Lead':<10} | {'Member1':<10} "
+        f"| {'Member2':<10} | {'Advisor':<10} | {'Status':<10}")
     print("-" * 90)
     for p in proj:
         print(f"{p.get('ProjectID', 'N/A'):<10} | "
@@ -159,7 +146,8 @@ class Student:
             'Member_pending_request').table
         available_projects = []
 
-        # Filter requests where 'to_be_member' matches 'self.ID' and the response is 'None'
+        # Filter requests where 'to_be_member' matches 'self.ID'
+        # and the response is 'None'
         for request in Member_pending_request:
             to_be_member = request.get('to_be_member', 'N/A').strip()
             response = request.get('Response', 'N/A').strip()
@@ -177,37 +165,20 @@ class Student:
         if available_projects:
             print("\nPending Requests:")
             print(
-                f"{'Project ID':<10} | {'To Be Member':<15} | {'Response':<10} | {'Response Date':<15}")
+                f"{'Project ID':<10} | {'To Be Member':<15} | "
+                f"{'Response':<10} | {'Response Date':<15}")
             print("-" * 60)  # Print a separator line
             for project in available_projects:
                 print(
-                    f"{project['ProjectID']:<10} | {project['To Be Member']:<15} | {project['Response']:<10} | {project['Response Date']:<15}")
+                    f"{project['ProjectID']:<10} | "
+                    f"{project['To Be Member']:<15} | "
+                    f"{project['Response']:<10} | "
+                    f"{project['Response Date']:<15}")
         else:
             print("\nNo requests found.")
 
         return [project['ProjectID'] for project in available_projects]
-        # Filter requests where 'to_be_member' matches 'self.ID'
-        # print()
-        # print(f"{'Project ID':<10} | {'To Be Member':<15} | {'Response':<10} | {'Response Date':<15}")
-        # print("-" * 60)  # Print a separator line
-        # Member_pending_request = _database.search(
-        #     'Member_pending_request').table
-        # avalable_project = []
-        # # Iterate over the data and print relevant requests
-        # for request in Member_pending_request:
-        #     to_be_member = request.get('to_be_member',
-        #                                'N/A')
-        #     response = request.get('Response').strip()
-        #     if to_be_member == self.ID and response == 'None':
-        #         # print(self.print_request(self.ID))
-        #         project_id = request.get('ProjectID').strip()
-        #         to_be_member = request.get('to_be_member').strip()
-        #         response = request.get('Response').strip()
-        #         response_date = request.get('Response_date').strip()
-        #         print(
-        #             f"{project_id:<10} | {to_be_member:<15} | {response:<10} | {response_date:<15}")
-        #         avalable_project.append(project_id)
-        # return avalable_project
+
 
     def get_request(self):
         Member_pending_request = _database.search(
@@ -240,13 +211,13 @@ class Student:
                 slot2 = project.get('Member2')
                 # print(slot1, slot2)
                 if slot1 == 'None':
-                    PROJECT.update_data('ProjectID',Project_ID,'Member1', self.ID)
+                    PROJECT.update_data('ProjectID', Project_ID, 'Member1',
+                                        self.ID)
                     return True  # Member added successfully
-                    # self.IN_GROUP = True
                 elif slot2 == "None":
-                    PROJECT.update_data('ProjectID', Project_ID,'Member2', self.ID)
+                    PROJECT.update_data('ProjectID', Project_ID, 'Member2',
+                                        self.ID)
                     return True  # Member added successfully
-                    # self.IN_GROUP = True
                 else:
                     print('Project Team already full')
                     return False  # Project is full
@@ -255,7 +226,8 @@ class Student:
     def is_already_in_project(self):
         PROJECT = _database.search('project')
         for project in PROJECT.table:
-            if project.get('Member1') == self.ID or project.get('Member2') == self.ID:
+            if project.get('Member1') == self.ID or project.get(
+                    'Member2') == self.ID:
                 return True
         return False
 
@@ -269,7 +241,8 @@ class Student:
                     if self.is_already_in_project():
                         print("You are already in a project.")
                         return  # Exit the function
-                    # Update the selected project request and add the student to the project
+                    # Update the selected project request
+                    # and add the student to the project
                     updated = self.update_project_member(
                         eachProject['ProjectID'])
                     if updated:
@@ -286,16 +259,15 @@ class Student:
                         # Automatically deny all other pending requests
                         for otherProject in all_project_request:
                             if otherProject['ProjectID'] != getprojectID:
-                                MEMBER_PENDING_REQUEST.update_data('uniqueID',
-                                                                   otherProject[
-                                                                       'uniqueID'],
-                                                                   'Response',
-                                                                   'Deny')
-                                MEMBER_PENDING_REQUEST.update_data('uniqueID',
-                                                                   otherProject[
-                                                                       'uniqueID'],
-                                                                   'Response_date',
-                                                                   current_date())
+                                (MEMBER_PENDING_REQUEST.
+                                 update_data('uniqueID',
+                                             otherProject['uniqueID'],
+                                             'Response','Deny'))
+                                (MEMBER_PENDING_REQUEST.
+                                 update_data('uniqueID',
+                                             otherProject['uniqueID'],
+                                             'Response_date',
+                                             current_date()))
                 elif decision.lower() == 'deny':
                     # Only deny the selected project request
                     MEMBER_PENDING_REQUEST.update_data('uniqueID',
@@ -305,7 +277,6 @@ class Student:
                                                        eachProject['uniqueID'],
                                                        'Response_date',
                                                        current_date())
-
 
     #
     def handle_requests(self):
@@ -320,7 +291,9 @@ class Student:
             if request_id.lower() == 'exit':
                 return
 
-        response = input("Do you want to accept (type 'accept') or deny (type 'deny') the request?: ")
+        response = input(
+            "Do you want to accept (type 'accept') "
+            "or deny (type 'deny') the request?: ")
         if response.lower() in ['accept', 'deny']:
             self.accept_deny_request(request_id, response)
             print("Request response updated.")
@@ -329,16 +302,19 @@ class Student:
 
     def change_to_lead(self):
         """
-        Change the role to 'lead' for a project. Update project_table and login table.
+        Change the role to 'lead' for a project.
+        Update project_table and login table.
         Must deny all member requests before changing the role.
         """
-        # Implementation details will vary based on how roles and requests are handled
+        # Implementation details will vary
+        # based on how roles and requests are handled
 
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
         PROJECT = _database.search('project').table
         LOGIN = _database.search('login').table
 
-        projectID = f'P{len(PROJECT)+1}'
+        projectID = f'P{len(PROJECT) + 1}'
 
         # Deny all pending member requests for the specified project
         for request in MEMBER_PENDING_REQUEST:
@@ -346,13 +322,14 @@ class Student:
                 request['Response'] = 'Denied'
 
         # Check if this student is already a lead in any project
-        is_already_lead = any(project['Lead'] == self.ID for project in PROJECT)
+        is_already_lead = any(
+            project['Lead'] == self.ID for project in PROJECT)
 
         if is_already_lead:
             print("This student is already a project lead.")
         else:
             # If not a lead, create or update a project
-            # is_already_lead = False
+            is_already_lead = False
             for project in PROJECT:
                 if project['ProjectID'] == projectID:
                     project['Lead'] = self.ID
@@ -361,16 +338,20 @@ class Student:
 
             if not is_already_lead:
                 ask_newProjectName = input('Enter new project name: ')
-                new_project = {'ProjectID': projectID, 'Title': ask_newProjectName,
+                new_project = {'ProjectID': projectID,
+                               'Title': ask_newProjectName,
                                'Lead': self.ID, 'Member1': 'None',
                                'Member2': 'None', 'Advisor': 'None',
                                'Status': 'ongoing'}
                 PROJECT.append(new_project)
-                print(f"Role changed to 'lead' for project {projectID}. New project created.")
+                print(
+                    f"Role changed to 'lead' for project {projectID}. "
+                    f"New project created.")
 
     def is_already_lead(self):
         PROJECT = _database.search('project').table
         return any(project['Lead'] == self.ID for project in PROJECT)
+
 
 class Lead:
     def __init__(self, student):
@@ -393,7 +374,9 @@ class Lead:
             print(f"Student ID {self.student.ID} is a lead for a project.")
             # Additional lead duties can be implemented here
         else:
-            print("This student is not a lead. Please assign lead responsibilities first.")
+            print(
+                "This student is not a lead. "
+                "Please assign lead responsibilities first.")
 
     def see_project_status(self):
         PROJECT = _database.search('project').table
@@ -433,7 +416,6 @@ class Lead:
         print(f"Project Status: {status}")
 
     def modify_project_info(self):
-        # project_id = self.myProject['ProjectID']
         project_info = self.myProject  # project
         print("\nCurrent Project Info:")
 
@@ -448,7 +430,6 @@ class Lead:
         # if leave it blank, need to click enter twice
         new_status = input(
             "\nEnter new status (leave blank to keep current): ")
-
 
         # Update if necessary
         if new_title:
@@ -473,25 +454,32 @@ class Lead:
             None)
 
         # Check if project already has 2 members
-        if current_project and current_project['Member1'] not in [None, 'None',
-                                                                  ''] and \
-                current_project['Member2'] not in [None, 'None', '']:
+        if (current_project and current_project['Member1']
+                not in [None, 'None',''] and
+                current_project['Member2'] not in [None, 'None', '']):
             print(
-                f"Your project (ID: {project_id}) already has 2 members. No pending member requests.")
+                f"Your project (ID: {project_id}) already "
+                f"has 2 members. No pending member requests.")
         else:
             # Print member responses in a table format
             print("\nMember Responses:")
             print(
-                f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
+                f"{'Unique ID':<10} | {'Project ID':<10} | "
+                f"{'Member ID':<10} | {'Response':<10} | "
+                f"{'Response Date':<15}")
             print("-" * 60)
             for resp in MEMBER_PENDING_REQUEST:
                 if resp['ProjectID'] == project_id:
                     print(
-                        f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+                        f"{resp.get('uniqueID', 'N/A'):<10} | "
+                        f"{resp.get('ProjectID', 'N/A'):<10} | "
+                        f"{resp.get('to_be_member', 'N/A'):<10} | "
+                        f"{resp.get('Response', 'N/A'):<10} | "
+                        f"{resp.get('Response_date', 'N/A'):<15}")
 
         # Check if project already has an advisor
-        if current_project and current_project['Advisor'] not in [None, 'None',
-                                                                  '']:
+        if (current_project and current_project['Advisor']
+                not in [None, 'None','']):
             print(
                 f"Your project (ID: {project_id}) already has an advisor. No pending advisor requests.")
         else:
@@ -505,50 +493,24 @@ class Lead:
                     print(
                         f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
 
-    # def view_responses_to_requests(self):
-    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-    #     ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
-    #     project_id = self.myProject['ProjectID']
-    #
-    #     member_responses = [req for req in MEMBER_PENDING_REQUEST if req['ProjectID'] == project_id]
-    #     advisor_responses = [req for req in ADVISOR_PENDING_REQUEST if req['ProjectID'] == project_id]
-
-    #     print("\nMember Responses:")
-    #     print(
-    #         f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
-    #     print("-" * 60)
-    #     for resp in member_responses:
-    #         print(
-    #             f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
-    #
-    #     # Print advisor responses in a table format
-    #     print("\nAdvisor Responses:")
-    #     print(
-    #         f"{'Project ID':<10} | {'Advisor ID':<10} | {'Response':<10} | {'Response Date':<15}")
-    #     print("-" * 60)
-    #     for resp in advisor_responses:
-    #         print(f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
-
-    # def send_request_to_member(self, member_id):
-    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-    #     project_id = self.myProject['ProjectID']
-    #
-    #     uniqueID = len(MEMBER_PENDING_REQUEST)+1
-    #     # Add request to the table
-    #     new_request = {'uniqueID': uniqueID,'ProjectID': project_id, 'to_be_member': member_id, 'Response': 'None', 'Response_date': 'None'}
-    #     MEMBER_PENDING_REQUEST.append(new_request)
-    #     print('Request for Project Membership sent.')
     def send_request_to_member(self):
         PROJECT = _database.search('project').table
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
         project_id = self.myProject['ProjectID']
 
         # Retrieve the current project information
-        current_project = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        current_project = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
 
         # Check if both member slots are filled
-        if current_project and current_project['Member1'] not in [None, 'None', ''] and current_project['Member2'] not in [None, 'None', '']:
-            print(f'Your project (ID: {project_id}) already has 2 members. Cannot send more invites.')
+        if (current_project and current_project['Member1']
+                not in [None, 'None', ''] and
+                current_project['Member2'] not in [None, 'None', '']):
+            print(
+                f'Your project (ID: {project_id}) already '
+                f'has 2 members. Cannot send more invites.')
             return
 
         # Ask for the member ID to send the request
@@ -560,33 +522,46 @@ class Lead:
         uniqueID = len(MEMBER_PENDING_REQUEST) + 1
 
         # Add request to the table
-        new_request = {'uniqueID': uniqueID, 'ProjectID': project_id, 'to_be_member': ask_member_id, 'Response': 'None', 'Response_date': 'None'}
+        new_request = {'uniqueID': uniqueID, 'ProjectID': project_id,
+                       'to_be_member': ask_member_id, 'Response': 'None',
+                       'Response_date': 'None'}
         MEMBER_PENDING_REQUEST.append(new_request)
         print('Request for Project Membership sent.')
 
     def send_request_to_advisor(self):
         PROJECT = _database.search('project').table
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
         project_id = self.myProject['ProjectID']
 
         # Retrieve the current project information
-        current_project = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        current_project = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
 
         # Check if an advisor already exists
-        if current_project and current_project['Advisor'] not in [None, 'None', '']:
-            print(f'Your project (ID: {project_id}) already has an advisor. Cannot send more invites.')
+        if (current_project and current_project['Advisor']
+                not in [None, 'None', '']):
+            print(
+                f'Your project (ID: {project_id}) already '
+                f'has an advisor. Cannot send more invites.')
             return
 
         # Check if both member slots are filled
-        if not (current_project['Member1'] not in [None, 'None', ''] and current_project['Member2'] not in [None, 'None', '']):
-            print(f'Cannot invite advisor until both member slots are filled for the project (ID: {project_id}).')
+        if not (current_project['Member1'] not in [None, 'None', ''] and
+                current_project['Member2'] not in [None, 'None', '']):
+            print(
+                f'Cannot invite advisor until both member slots '
+                f'are filled for the project (ID: {project_id}).')
             return
 
         # Ask for the advisor ID to send the request
         ask_advisor_id = input("\nEnter Advisor ID to send request: ")
 
         # Add request to the table
-        new_request = {'ProjectID': project_id, 'to_be_advisor': ask_advisor_id, 'Response': 'None', 'Response_date': 'None'}
+        new_request = {'ProjectID': project_id,
+                       'to_be_advisor': ask_advisor_id, 'Response': 'None',
+                       'Response_date': 'None'}
         ADVISOR_PENDING_REQUEST.append(new_request)
         print('Request for Advisor sent.')
 
@@ -601,15 +576,18 @@ class Member:
     def get_project(self):
         PROJECT = _database.search('project')
         for project in PROJECT.table:
-            if self.student.ID == project.get("Member1") or self.student.ID == project.get("Member2"):
+            if self.student.ID == project.get(
+                    "Member1") or self.student.ID == project.get("Member2"):
                 return project
 
     def is_already_member(self):
         return bool(self.myProject)
 
     def see_project_status(self):
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
 
         # Assuming the student's project ID is stored in self.student.projectID
         project_id = self.myProject['ProjectID']
@@ -626,10 +604,12 @@ class Member:
 
         else:
             members_pending = any(
-                req['ProjectID'] == project_id and req['Response'] == 'None' for
+                req['ProjectID'] == project_id and req['Response'] == 'None'
+                for
                 req in MEMBER_PENDING_REQUEST)
             advisor_pending = any(
-                req['ProjectID'] == project_id and req['Response'] == 'None' for
+                req['ProjectID'] == project_id and req['Response'] == 'None'
+                for
                 req in ADVISOR_PENDING_REQUEST)
 
             if members_pending:
@@ -657,7 +637,6 @@ class Member:
         new_status = input(
             "\nEnter new status (leave blank to keep current): ")
 
-
         # Update if necessary
         if new_title:
             project_info['Title'] = new_title
@@ -668,28 +647,42 @@ class Member:
             print('Project status successfully updated')
 
     def view_responses_to_requests(self):
-        MEMBER_PENDING_REQUEST = _database.search('Member_pending_request').table
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        MEMBER_PENDING_REQUEST = _database.search(
+            'Member_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
         project_id = self.myProject['ProjectID']
 
-        member_responses = [req for req in MEMBER_PENDING_REQUEST if req['ProjectID'] == project_id]
-        advisor_responses = [req for req in ADVISOR_PENDING_REQUEST if req['ProjectID'] == project_id]
+        member_responses = [req for req in MEMBER_PENDING_REQUEST if
+                            req['ProjectID'] == project_id]
+        advisor_responses = [req for req in ADVISOR_PENDING_REQUEST if
+                             req['ProjectID'] == project_id]
 
         print("\nMember Responses:")
         print(
-            f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | {'Response':<10} | {'Response Date':<15}")
+            f"{'Unique ID':<10} | {'Project ID':<10} | {'Member ID':<10} | "
+            f"{'Response':<10} | {'Response Date':<15}")
         print("-" * 60)
         for resp in member_responses:
             print(
-                f"{resp.get('uniqueID', 'N/A'):<10} | {resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_member', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+                f"{resp.get('uniqueID', 'N/A'):<10} | "
+                f"{resp.get('ProjectID', 'N/A'):<10} | "
+                f"{resp.get('to_be_member', 'N/A'):<10} | "
+                f"{resp.get('Response', 'N/A'):<10} | "
+                f"{resp.get('Response_date', 'N/A'):<15}")
 
         # Print advisor responses in a table format
         print("\nAdvisor Responses:")
         print(
-            f"{'Project ID':<10} | {'Advisor ID':<10} | {'Response':<10} | {'Response Date':<15}")
+            f"{'Project ID':<10} | {'Advisor ID':<10} | "
+            f"{'Response':<10} | {'Response Date':<15}")
         print("-" * 60)
         for resp in advisor_responses:
-            print(f"{resp.get('ProjectID', 'N/A'):<10} | {resp.get('to_be_advisor', 'N/A'):<10} | {resp.get('Response', 'N/A'):<10} | {resp.get('Response_date', 'N/A'):<15}")
+            print(
+                f"{resp.get('ProjectID', 'N/A'):<10} | "
+                f"{resp.get('to_be_advisor', 'N/A'):<10} | "
+                f"{resp.get('Response', 'N/A'):<10} | "
+                f"{resp.get('Response_date', 'N/A'):<15}")
 
 
 class Faculty:
@@ -705,10 +698,13 @@ class Faculty:
         return any(proj['Advisor'] == self.ID for proj in PROJECT)
 
     def is_examiner(self):
-        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        EXAMINER_PENDING_REQUEST = _database.search(
+            'Examiner_pending_request').table
         PROJECT = _database.search('project').table
         return any(req['to_be_examiners'] == self.ID and
-                   next((proj for proj in PROJECT if proj['ProjectID'] == req['ProjectID'] and proj['Advisor'] != self.ID), None)
+                   next((proj for proj in PROJECT if
+                         proj['ProjectID'] == req['ProjectID'] and proj[
+                             'Advisor'] != self.ID), None)
                    for req in EXAMINER_PENDING_REQUEST)
 
     def view_advisor_requests(self):
@@ -724,27 +720,36 @@ class Faculty:
         print("Advisor Requests:")
         for req in requests:
             print(
-                f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+                f"Project ID: {req['ProjectID']}, "
+                f"Response: {req['Response']}, Date: {req['Response_date']}")
 
         return True  # Indicating that requests were found
 
     def is_advisor_for_project(self, project_id):
         PROJECT = _database.search('project').table
-        project_info = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        project_info = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
         return project_info and project_info['Advisor'] == self.ID
 
-    def is_project_without_advisor(self, project_id):
+    @staticmethod
+    def is_project_without_advisor(project_id):
         PROJECT = _database.search('project').table
-        project_info = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
+        project_info = next(
+            (proj for proj in PROJECT if proj['ProjectID'] == project_id),
+            None)
         return project_info and project_info['Advisor'] in [None, 'None', '']
 
     def accept_deny_advisor_request(self):
-        ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
+        ADVISOR_PENDING_REQUEST = _database.search(
+            'Advisor_pending_request').table
         project_tables = _database.search('project').table
         PROJECT = _database.search('project')
 
         # Filter out requests with 'Deny' response
-        pending_requests = [req for req in ADVISOR_PENDING_REQUEST if req['to_be_advisor'] == self.ID and req['Response'] != 'Deny']
+        pending_requests = [req for req in ADVISOR_PENDING_REQUEST if
+                            req['to_be_advisor'] == self.ID and req[
+                                'Response'] != 'Deny']
 
         if not pending_requests:
             print("No pending advisor requests found.")
@@ -753,25 +758,34 @@ class Faculty:
         # Display pending advisor requests
         print("Pending Advisor Requests:")
         for req in pending_requests:
-            print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+            print(
+                f"Project ID: {req['ProjectID']}, Response: {req['Response']}, "
+                f"Date: {req['Response_date']}")
 
         project_id = input("Enter the Project ID for which to send response: ")
 
         # Check if already responded with 'Accept' to this project
-        already_accepted = any(req['ProjectID'] == project_id and req['to_be_advisor'] == self.ID and req['Response'] == 'Accept' for req in ADVISOR_PENDING_REQUEST)
+        already_accepted = any(req['ProjectID'] == project_id and req[
+            'to_be_advisor'] == self.ID and req['Response'] == 'Accept' for req
+                               in ADVISOR_PENDING_REQUEST)
         if already_accepted:
-            print(f"You have already accepted an advisor request for project {project_id}.")
+            print(
+                f"You have already accepted an "
+                f"advisor request for project {project_id}.")
             return
 
         # Check if the project already has an advisor
-        project_info = next((p for p in project_tables if p['ProjectID'] == project_id), None)
+        project_info = next(
+            (p for p in project_tables if p['ProjectID'] == project_id), None)
         if project_info and project_info['Advisor'] not in [None, 'None', '']:
             print("This project already has an advisor.")
             return
 
         # Process response
         response = input("Enter your response (Accept/Deny): ")
-        valid_request = next((req for req in ADVISOR_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_advisor'] == self.ID), None)
+        valid_request = next((req for req in ADVISOR_PENDING_REQUEST if
+                              req['ProjectID'] == project_id and req[
+                                  'to_be_advisor'] == self.ID), None)
         if valid_request:
             valid_request['Response'] = response
             valid_request['Response_date'] = current_date()
@@ -779,7 +793,8 @@ class Faculty:
             if response.lower() == 'accept':
                 # Update the project's advisor field
                 project_info['Advisor'] = self.ID
-                PROJECT.update_data('ProjectID', project_id, 'Advisor', self.ID)
+                PROJECT.update_data('ProjectID', project_id, 'Advisor',
+                                    self.ID)
                 print(f"Accepted advisor role for project {project_id}.")
             else:
                 print("Advisor request denied.")
@@ -789,14 +804,17 @@ class Faculty:
             print("No matching request found.")
 
     def view_examiner_requests(self):
-        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        EXAMINER_PENDING_REQUEST = _database.search(
+            'Examiner_pending_request').table
         PROJECT = _database.search('project').table
 
-        # Filter out examiner requests for projects where this faculty is not the advisor
+        # Filter out examiner requests for
+        # projects where this faculty is not the advisor
         requests = []
         for req in EXAMINER_PENDING_REQUEST:
             if req['to_be_examiners'] == self.ID:
-                project = next((proj for proj in PROJECT if proj['ProjectID'] == req['ProjectID']), None)
+                project = next((proj for proj in PROJECT if
+                                proj['ProjectID'] == req['ProjectID']), None)
                 if project and project['Advisor'] != self.ID:
                     requests.append(req)
 
@@ -806,27 +824,37 @@ class Faculty:
 
         print("Examiner Requests:")
         for req in requests:
-            print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+            print(
+                f"Project ID: {req['ProjectID']}, "
+                f"Response: {req['Response']}, Date: {req['Response_date']}")
 
     def accept_deny_examiners_invite(self):
-        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        EXAMINER_PENDING_REQUEST = _database.search(
+            'Examiner_pending_request').table
 
         # Display examiner requests and check if there are any
         self.view_examiner_requests()
-        if not any(req['to_be_examiners'] == self.ID for req in EXAMINER_PENDING_REQUEST):
+        if not any(req['to_be_examiners'] == self.ID for req in
+                   EXAMINER_PENDING_REQUEST):
             return
 
         project_id = input("Enter the Project ID for which to send response: ")
 
         # Check if already responded with 'Accept' to this project
-        already_accepted = any(req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID and req['Response'] == 'Accept' for req in EXAMINER_PENDING_REQUEST)
+        already_accepted = any(req['ProjectID'] == project_id and req[
+            'to_be_examiners'] == self.ID and req['Response'] == 'Accept' for
+                               req in EXAMINER_PENDING_REQUEST)
         if already_accepted:
-            print(f"You have already accepted an invite for project {project_id}.")
+            print(
+                f"You have already accepted an "
+                f"invite for project {project_id}.")
             return
 
         # Process response
         response = input("Enter your response (Accept/Deny): ")
-        valid_request = next((req for req in EXAMINER_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID), None)
+        valid_request = next((req for req in EXAMINER_PENDING_REQUEST if
+                              req['ProjectID'] == project_id and req[
+                                  'to_be_examiners'] == self.ID), None)
         if valid_request:
             valid_request['Response'] = response
             valid_request['Response_date'] = current_date()
@@ -858,7 +886,8 @@ class Advisor(Faculty):
         print("Your Projects:")
         for index, proj in enumerate(self.myProject, start=1):
             print(
-                f"{index}. Project ID: {proj['ProjectID']}, Title: {proj['Title']}")
+                f"{index}. Project ID: {proj['ProjectID']}, "
+                f"Title: {proj['Title']}")
 
         choice = input("Select the project number to modify: ")
         if choice.isdigit() and 1 <= int(choice) <= len(self.myProject):
@@ -888,73 +917,83 @@ class Advisor(Faculty):
         else:
             print("Invalid project selection.")
 
-    def approve_project(self):
-        project_data = _database.search('project').table
-        PROJECT = _database.search('project')
-
-
-        print("Your Projects:")
-        for proj in self.myProject:
-            print(f"Project ID: {proj['ProjectID']}, Title: {proj['Title']}")
-
-        project_id = input("Enter the Project ID to approve or deny: ")
-
-        if project_id not in [p['ProjectID'] for p in self.myProject]:
-            print("Invalid Project ID or project not under your advisory.")
-            return
-
-        project_info = next((p for p in project_data if p['ProjectID'] == project_id), None)
-        if project_info:
-            response = input("Do you want to approve or deny the project? (approve/deny): ").lower()
-            if response in ['approve', 'deny']:
-                new_status = 'Approved' if response == 'approve' else 'Denied'
-                # Assuming 'project' is the table name in the database
-                PROJECT.update_data('ProjectID', project_id, 'Status', new_status)
-                print(f"Project {project_id} {new_status.lower()} successfully.")
-            else:
-                print("Invalid response. No action taken.")
-        else:
-            print("Project not found.")
-
 
 class Examiners(Faculty):
     def __init__(self, sIDfromlogin):
         super().__init__(sIDfromlogin)
 
     def send_project_response(self):
-        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        EXAMINER_PENDING_REQUEST = _database.search(
+            'Examiner_pending_request').table
         self.view_examiner_requests()
         project_id = input("Enter the Project ID for which to send response: ")
         response = input("Enter your response (Accept/Deny): ")
         comment = input("Enter your comment (optional): ")
 
-        valid_request = next((req for req in EXAMINER_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID), None)
+        valid_request = next((req for req in EXAMINER_PENDING_REQUEST if
+                              req['ProjectID'] == project_id and req[
+                                  'to_be_examiners'] == self.ID), None)
         if valid_request:
             valid_request['Response'] = response
             valid_request['Response_date'] = current_date()
-            valid_request['Comment'] = comment  # Adding a comment field to the request
+            valid_request[
+                'Comment'] = comment  # Adding a comment field to the request
             print("Response and comment sent successfully.")
+
         else:
             print("No matching request found.")
 
     def evaluate_project(self):
         # Ensure the Examiners table exists in the database
-        if 'project_evaluations' not in _database:
+        if not _database.table_exists('project_evaluations'):
             _database.create_table('project_evaluations', [])
 
         PROJECT_EVALUATIONS = _database.search('project_evaluations').table
         PROJECT = _database.search('project').table
-        EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
+        EXAMINER_PENDING_REQUEST = _database.search(
+            'Examiner_pending_request').table
+
+        # Display projects eligible for evaluation
+        print("Projects eligible for evaluation:")
+        eligible_projects = []
+        for req in EXAMINER_PENDING_REQUEST:
+            if req['to_be_examiners'] == self.ID and req[
+                'Response'] == 'Accept':
+                print(f"Project ID: {req['ProjectID']}")
+                eligible_projects.append(req['ProjectID'])
 
         project_id = input("Enter the Project ID to evaluate: ")
+
+        # Check if the project ID is in the list of eligible projects
+        if project_id not in eligible_projects:
+            print("Invalid Project ID or not eligible for evaluation.")
+            return
+
         score = input("Enter your evaluation score (1-10): ")
         comment = input("Enter your comment (optional): ")
 
-        # Check if the faculty is an examiner and not an advisor for the project
-        is_examiner_for_project = any(req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID for req in EXAMINER_PENDING_REQUEST)
-        is_advisor_for_project = any(proj['ProjectID'] == project_id and proj['Advisor'] == self.ID for proj in PROJECT)
+        # Validations
+        if not score.isdigit() or not 1 <= int(score) <= 10:
+            print("Invalid score. Evaluation cancelled.")
+            return
+
+        # Check if the faculty is an examiner for
+        # the project and not an advisor
+        is_examiner_for_project = project_id in eligible_projects
+        is_advisor_for_project = any(
+            proj['ProjectID'] == project_id and proj['Advisor'] == self.ID for
+            proj in PROJECT)
 
         if is_examiner_for_project and not is_advisor_for_project:
+            # Confirm evaluation details
+            print(
+                f"\nProject ID: {project_id}, Score: {score}, "
+                f"Comment: {comment}")
+            confirm = input("Confirm evaluation? (yes/no): ").lower()
+            if confirm != 'yes':
+                print("Evaluation cancelled.")
+                return
+
             # Create a new evaluation entry
             new_evaluation = {
                 'ProjectID': project_id,
@@ -967,9 +1006,6 @@ class Examiners(Faculty):
             # Add the evaluation to the table
             PROJECT_EVALUATIONS.append(new_evaluation)
             print(f"Evaluation for Project {project_id} added successfully.")
-
-            # Update the project_evaluations.csv file
-            _database.write_to_csv()
         else:
             print("You are not authorized to evaluate this project.")
 
@@ -1003,12 +1039,14 @@ class Admin:
             display_all_project()
             project_id = input("\nEnter Project ID: ")
             project_table = _database.search('project').table
-            if any(project['ProjectID'] == project_id for project in project_table):
+            if any(project['ProjectID'] == project_id for project in
+                   project_table):
                 break
             else:
                 print(f"Project with ID {project_id} not found.")
         while True:
-            new_status = input('Select status to be change((1)ongoing/(2)done): ')
+            new_status = input(
+                'Select status to be change((1)ongoing/(2)done): ')
             if new_status == '1':
                 new_status = 'ongoing'
                 print('Status changed')
@@ -1030,7 +1068,8 @@ class Admin:
         print('Professor List:')
         for person in PERSON.table:
             if person['type'] == 'faculty' and person not in selected:
-                print(f"ID: {person['ID']}, Name: {person['first']} {person['last']}")
+                print(
+                    f"ID: {person['ID']}, Name: {person['first']} {person['last']}")
                 professors.append(person)
         return professors
 
@@ -1088,20 +1127,26 @@ class Admin:
         selected_professor = []
         selected = False
         project_table = _database.search('project').table
-        examiner_pending_table = _database.search('Examiner_pending_request').table
+        examiner_pending_table = _database.search(
+            'Examiner_pending_request').table
 
         while not selected:
             project_id = input("\nEnter Project ID: ")
-            project_exists = any(project['ProjectID'] == project_id for project in project_table)
+            project_exists = any(
+                project['ProjectID'] == project_id for project in
+                project_table)
             if project_exists:
                 selected = True
             else:
                 print("Invalid Project ID. Please try again.")
 
         # Check if the project already has 3 accepted examiners
-        accepted_examiners = [req for req in examiner_pending_table if req['ProjectID'] == project_id and req['Response'].lower() == 'accept']
+        accepted_examiners = [req for req in examiner_pending_table if
+                              req['ProjectID'] == project_id and req[
+                                  'Response'].lower() == 'accept']
         if len(accepted_examiners) >= 3:
-            print("This project already has 3 accepted examiners. Cannot send more invites.")
+            print(
+                "This project already has 3 accepted examiners. Cannot send more invites.")
             return
 
         while len(selected_professor) < 3:
@@ -1110,49 +1155,65 @@ class Admin:
             if professor_id.strip() == '':
                 return
 
-            professor = next((prof for prof in table_professor if prof['ID'] == professor_id), None)
+            professor = next((prof for prof in table_professor if
+                              prof['ID'] == professor_id), None)
             if not professor:
                 print("Invalid Professor ID. Please try again.")
                 continue
 
             # Check if the professor is already an advisor or has a pending invite for the project
-            project_info = next((proj for proj in project_table if proj['ProjectID'] == project_id), None)
-            existing_invite = next((req for req in examiner_pending_table if req['ProjectID'] == project_id and req['to_be_examiners'] == professor_id), None)
+            project_info = next((proj for proj in project_table if
+                                 proj['ProjectID'] == project_id), None)
+            existing_invite = next((req for req in examiner_pending_table if
+                                    req['ProjectID'] == project_id and req[
+                                        'to_be_examiners'] == professor_id),
+                                   None)
             if project_info and project_info['Advisor'] == professor_id:
-                print('This faculty is already an advisor for this project. Cannot send invite.')
+                print(
+                    'This faculty is already an advisor for this project. Cannot send invite.')
             elif existing_invite:
-                print(f'An invite has already been sent to Professor ID {professor_id} for this project.')
+                print(
+                    f'An invite has already been sent to Professor ID {professor_id} for this project.')
             else:
                 selected_professor.append(professor)
                 print(f'Selected: {len(selected_professor)} examiners.')
 
         for professor in selected_professor:
             examiner_pending_table.append(
-                {'ProjectID': project_id, 'to_be_examiners': professor['ID'], 'Response': 'None', 'Response_date': 'None'})
+                {'ProjectID': project_id, 'to_be_examiners': professor['ID'],
+                 'Response': 'None', 'Response_date': 'None'})
             print(f"Invite sent to Professor ID {professor['ID']}.")
+
     def view_all_invites(self):
-        examiner_pending_table = _database.search('Examiner_pending_request').table
+        examiner_pending_table = _database.search(
+            'Examiner_pending_request').table
         print("\nAll Examiner Invites:")
         for req in examiner_pending_table:
-            print(f"Project ID: {req['ProjectID']}, Examiner ID: {req['to_be_examiners']}, Response: {req['Response']}, Date: {req['Response_date']}")
+            print(
+                f"Project ID: {req['ProjectID']}, Examiner ID: {req['to_be_examiners']}, Response: {req['Response']}, Date: {req['Response_date']}")
 
     def delete_invite(self):
-        examiner_pending_table = _database.search('Examiner_pending_request').table
+        examiner_pending_table = _database.search(
+            'Examiner_pending_request').table
         self.view_all_invites()
 
-        project_id = input("\nEnter the Project ID for which to delete an invite: ")
-        professor_id = input("Enter the Professor ID for which to delete the invite: ")
+        project_id = input(
+            "\nEnter the Project ID for which to delete an invite: ")
+        professor_id = input(
+            "Enter the Professor ID for which to delete the invite: ")
         # Find the invite in the examiner_pending_request table
         invite_index = None
         for i, invite in enumerate(examiner_pending_table):
-            if invite['ProjectID'] == project_id and invite['to_be_examiners'] == professor_id:
+            if invite['ProjectID'] == project_id and invite[
+                'to_be_examiners'] == professor_id:
                 invite_index = i
                 break
 
         if invite_index is not None:
             # Delete the invite
             del examiner_pending_table[invite_index]
-            print(f"Invite for Project ID {project_id} and Professor ID {professor_id} has been deleted.")
+            print(
+                f"Invite for Project ID {project_id} and Professor ID {professor_id} has been deleted.")
         else:
             print("No matching invite found.")
 
@@ -1161,8 +1222,9 @@ class Admin:
             display_all_project()
             project_id = input("\nEnter Project ID: ")
             __project_table = _database.search('project').table
-            index_to_remove = next((index for index, entry in enumerate(__project_table) if
-                                    entry.get('ProjectID') == project_id), None)
+            index_to_remove = next(
+                (index for index, entry in enumerate(__project_table) if
+                 entry.get('ProjectID') == project_id), None)
             if index_to_remove is not None:
                 __project_table.pop(index_to_remove)
                 break
@@ -1180,7 +1242,6 @@ val = login()  # id, role
 
 """ based on the return value for login, activate the code that 
 performs activities according to the role defined for that person_id """
-
 
 if val[1] == 'student':
     student_instance = Student(val[0])

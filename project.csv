@@ -1,4 +1,4 @@
-ProjectID,Title,Lead,Member1,Member2,Advisor,Status
+ProjectID,Title,Lead,Member1,Member2,Advisor,Status,Comment
 P1,a project a,5662557,None,None,8466074,ongoing
 P2,bb test member,5687866,7998314,5484541,None,ongoing
 P3,ad test,1554306,1863421,1042748,2567260,Approved
