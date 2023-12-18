@@ -11,7 +11,7 @@
 7. `persons.csv`
 
 ### Python Files
-1. **project_manage.py**  
+1. `project_manage.py`
    Contains 7 classes:
    - **class Student**: Display all project membership invitations sent to the student and allow responses.
    - **class Lead**: Manage project status, info, and requests.
@@ -21,7 +21,7 @@
    - **class Examiners (Faculty)**: Approve/deny and evaluate projects.
    - **class Admin**: Manage projects, send examiner invites, change project statuses, and delete projects.
 
-2. **database.py**  
+2. `database.py` 
    Contains 2 classes:
    - **class DB**: Handle table creation, addition, searching, and exporting to CSV.
    - **class Table**: Perform data manipulation, information retrieval, and table operations.
