@@ -306,72 +306,8 @@ class Student:
                                                        'Response_date',
                                                        current_date())
 
-    # def accept_deny_request(self, getprojectID, decision):
-    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request')
-    #     all_project_request = self.get_request()
-    #     for eachProject in all_project_request:
-    #         if eachProject['ProjectID'] == getprojectID:
-    #             if decision.lower() == 'accept':
-    #                 # Update the selected project request
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response',
-    #                                                    'Accept')
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response_date',
-    #                                                    current_date())
-    #                 self.update_project_member(eachProject['ProjectID'])
+
     #
-    #                 # Automatically deny all other pending requests
-    #                 for otherProject in all_project_request:
-    #                     if otherProject['ProjectID'] != getprojectID:
-    #                         MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                            otherProject[
-    #                                                                'uniqueID'],
-    #                                                            'Response',
-    #                                                            'Deny')
-    #                         MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                            otherProject[
-    #                                                                'uniqueID'],
-    #                                                            'Response_date',
-    #                                                            current_date())
-    #             elif decision.lower() == 'deny':
-    #                 # Only deny the selected project request
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response', 'Deny')
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response_date',
-    #                                                    current_date())
-
-    # def accept_deny_request(self, getprojectID, decision):
-    #     MEMBER_PENDING_REQUEST = _database.search('Member_pending_request')
-    #     all_project_request = self.get_request()
-    #     for eachProject in all_project_request:
-    #         if eachProject['ProjectID'] == getprojectID:
-    #             if decision.lower() == 'accept':
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                          eachProject[
-    #                                                              'uniqueID'],
-    #                                                          'Response',
-    #                                                          'Accept')
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                          eachProject[
-    #                                                              'uniqueID'],
-    #                                                          'Response_date',
-    #                                                          current_date())
-    #                 self.update_project_member(eachProject['ProjectID'])
-    #             elif decision.lower() == 'deny':
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response', 'Deny')
-    #                 MEMBER_PENDING_REQUEST.update_data('uniqueID',
-    #                                                    eachProject['uniqueID'],
-    #                                                    'Response_date',
-    #                                                    current_date())
-
     def handle_requests(self):
         print('Project Invitation:')
         requests = self.view_requests()
@@ -467,6 +403,7 @@ class Lead:
             'Advisor_pending_request').table
 
         project_id = self.myProject['ProjectID']
+
         current_project = next(
             (proj for proj in PROJECT if proj['ProjectID'] == project_id),
             None)
@@ -779,9 +716,17 @@ class Faculty:
             'Advisor_pending_request').table
         requests = [req for req in ADVISOR_PENDING_REQUEST if
                     req['to_be_advisor'] == self.ID]
+
+        if not requests:
+            print('No advisor requests found')
+            return False  # Indicating no requests found
+
         print("Advisor Requests:")
         for req in requests:
-            print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+            print(
+                f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+
+        return True  # Indicating that requests were found
 
     def is_advisor_for_project(self, project_id):
         PROJECT = _database.search('project').table
@@ -793,19 +738,33 @@ class Faculty:
         project_info = next((proj for proj in PROJECT if proj['ProjectID'] == project_id), None)
         return project_info and project_info['Advisor'] in [None, 'None', '']
 
-    def send_advisor_response(self):
+    def accept_deny_advisor_request(self):
         ADVISOR_PENDING_REQUEST = _database.search('Advisor_pending_request').table
-        PROJECT = _database.search('project').table
-        self.view_advisor_requests()
+        project_tables = _database.search('project').table
+        PROJECT = _database.search('project')
+
+        # Filter out requests with 'Deny' response
+        pending_requests = [req for req in ADVISOR_PENDING_REQUEST if req['to_be_advisor'] == self.ID and req['Response'] != 'Deny']
+
+        if not pending_requests:
+            print("No pending advisor requests found.")
+            return
+
+        # Display pending advisor requests
+        print("Pending Advisor Requests:")
+        for req in pending_requests:
+            print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
+
         project_id = input("Enter the Project ID for which to send response: ")
 
-        # Check if already an advisor for this project
-        if self.is_advisor_for_project(project_id):
-            print("You are already an advisor for this project.")
+        # Check if already responded with 'Accept' to this project
+        already_accepted = any(req['ProjectID'] == project_id and req['to_be_advisor'] == self.ID and req['Response'] == 'Accept' for req in ADVISOR_PENDING_REQUEST)
+        if already_accepted:
+            print(f"You have already accepted an advisor request for project {project_id}.")
             return
 
         # Check if the project already has an advisor
-        project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
+        project_info = next((p for p in project_tables if p['ProjectID'] == project_id), None)
         if project_info and project_info['Advisor'] not in [None, 'None', '']:
             print("This project already has an advisor.")
             return
@@ -816,6 +775,15 @@ class Faculty:
         if valid_request:
             valid_request['Response'] = response
             valid_request['Response_date'] = current_date()
+
+            if response.lower() == 'accept':
+                # Update the project's advisor field
+                project_info['Advisor'] = self.ID
+                PROJECT.update_data('ProjectID', project_id, 'Advisor', self.ID)
+                print(f"Accepted advisor role for project {project_id}.")
+            else:
+                print("Advisor request denied.")
+
             print("Response sent successfully.")
         else:
             print("No matching request found.")
@@ -824,7 +792,7 @@ class Faculty:
         EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
         PROJECT = _database.search('project').table
 
-        # Filter out examiner requests for projects where this faculty is the advisor
+        # Filter out examiner requests for projects where this faculty is not the advisor
         requests = []
         for req in EXAMINER_PENDING_REQUEST:
             if req['to_be_examiners'] == self.ID:
@@ -832,16 +800,32 @@ class Faculty:
                 if project and project['Advisor'] != self.ID:
                     requests.append(req)
 
+        if not requests:
+            print("No examiner requests found.")
+            return
+
         print("Examiner Requests:")
         for req in requests:
             print(f"Project ID: {req['ProjectID']}, Response: {req['Response']}, Date: {req['Response_date']}")
 
-    def send_examiners_response(self):
+    def accept_deny_examiners_invite(self):
         EXAMINER_PENDING_REQUEST = _database.search('Examiner_pending_request').table
-        self.view_examiner_requests()
-        project_id = input("Enter the Project ID for which to send response: ")
-        response = input("Enter your response (Accept/Deny): ")
 
+        # Display examiner requests and check if there are any
+        self.view_examiner_requests()
+        if not any(req['to_be_examiners'] == self.ID for req in EXAMINER_PENDING_REQUEST):
+            return
+
+        project_id = input("Enter the Project ID for which to send response: ")
+
+        # Check if already responded with 'Accept' to this project
+        already_accepted = any(req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID and req['Response'] == 'Accept' for req in EXAMINER_PENDING_REQUEST)
+        if already_accepted:
+            print(f"You have already accepted an invite for project {project_id}.")
+            return
+
+        # Process response
+        response = input("Enter your response (Accept/Deny): ")
         valid_request = next((req for req in EXAMINER_PENDING_REQUEST if req['ProjectID'] == project_id and req['to_be_examiners'] == self.ID), None)
         if valid_request:
             valid_request['Response'] = response
@@ -850,53 +834,88 @@ class Faculty:
         else:
             print("No matching request found.")
 
+
 class Advisor(Faculty):
     def __init__(self, sIDfromlogin):
         super().__init__(sIDfromlogin)
+        self.myProject = self.get_project()
+
+    def get_project(self):
+        PROJECT = _database.search('project').table
+        my_projects = []
+
+        # Search for projects where this advisor is involved
+        for project in PROJECT:
+            if self.ID == project.get("Advisor"):
+                my_projects.append(project)
+
+        return my_projects
 
     def modify_project(self):
-        PROJECT = _database.search('project').table
-        project_id = input("Enter the Project ID to modify: ")
+        PROJECT = _database.search('project')
 
-        # Fetch and display current project information
-        project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
-        if project_info:
+        # Show the advisor's projects and let them choose one to modify
+        print("Your Projects:")
+        for index, proj in enumerate(self.myProject, start=1):
+            print(
+                f"{index}. Project ID: {proj['ProjectID']}, Title: {proj['Title']}")
+
+        choice = input("Select the project number to modify: ")
+        if choice.isdigit() and 1 <= int(choice) <= len(self.myProject):
+            selected_project = self.myProject[int(choice) - 1]
+            project_id = selected_project['ProjectID']
+
             print("Current Project Info:")
-
-            headers = ["Attribute", "Value"]
-            print(f"{headers[0]:<15} | {headers[1]:<15}")
-            print("-" * 32)  # Separator line for header
-            for key, value in project_info.items():
+            for key, value in selected_project.items():
                 print(f"{key:<15} | {str(value):<15}")
 
             # Ask for new details
-            new_title = input("Enter new title (leave blank to keep current): ")
-            new_status = input("Enter new status (leave blank to keep current): ")
+            new_title = input(
+                "Enter new title (leave blank to keep current): ")
+            new_status = input(
+                "Enter new status (leave blank to keep current): ")
 
             # Update if necessary
             if new_title:
-                project_info['Title'] = new_title
+                selected_project['Title'] = new_title
             if new_status:
-                project_info['Status'] = new_status
+                selected_project['Status'] = new_status
 
             # Update the database
             PROJECT.update_data('ProjectID', project_id, 'Title', new_title)
             PROJECT.update_data('ProjectID', project_id, 'Status', new_status)
             print("Project updated successfully.")
         else:
-            print("Project not found.")
+            print("Invalid project selection.")
 
     def approve_project(self):
-        PROJECT = _database.search('project').table
-        project_id = input("Enter the Project ID to approve: ")
+        project_data = _database.search('project').table
+        PROJECT = _database.search('project')
 
-        project_info = next((p for p in PROJECT if p['ProjectID'] == project_id), None)
+
+        print("Your Projects:")
+        for proj in self.myProject:
+            print(f"Project ID: {proj['ProjectID']}, Title: {proj['Title']}")
+
+        project_id = input("Enter the Project ID to approve or deny: ")
+
+        if project_id not in [p['ProjectID'] for p in self.myProject]:
+            print("Invalid Project ID or project not under your advisory.")
+            return
+
+        project_info = next((p for p in project_data if p['ProjectID'] == project_id), None)
         if project_info:
-            project_info['Status'] = 'Approved'
-            PROJECT.update_data('ProjectID', project_id, 'Status', 'Approved')
-            print(f"Project {project_id} approved successfully.")
+            response = input("Do you want to approve or deny the project? (approve/deny): ").lower()
+            if response in ['approve', 'deny']:
+                new_status = 'Approved' if response == 'approve' else 'Denied'
+                # Assuming 'project' is the table name in the database
+                PROJECT.update_data('ProjectID', project_id, 'Status', new_status)
+                print(f"Project {project_id} {new_status.lower()} successfully.")
+            else:
+                print("Invalid response. No action taken.")
         else:
             print("Project not found.")
+
 
 class Examiners(Faculty):
     def __init__(self, sIDfromlogin):
@@ -920,7 +939,7 @@ class Examiners(Faculty):
 
     def evaluate_project(self):
         # Ensure the Examiners table exists in the database
-        if 'project_evaluations' not in _database.tables:
+        if 'project_evaluations' not in _database:
             _database.create_table('project_evaluations', [])
 
         PROJECT_EVALUATIONS = _database.search('project_evaluations').table
@@ -1279,10 +1298,10 @@ elif val[1] == 'faculty':
         print("\n=== Faculty Menu ===")
         print("1. View Examiner Requests")
         print("2. View Advisor Requests")
-        print("3. Respond as Examiner")
-        print("4. Respond as Advisor")
-        print("5. Select Advisor Role")
-        print("6. Select Examiner Role")
+        print("3. Accept/Deny Examiner Invite")
+        print("4. Accept/Deny Advisor Invite")
+        print("5. Advisor menu")
+        print("6. Examiner menu")
         print("7. Exit")
         choice = input("\nEnter your choice: ")
 
@@ -1291,25 +1310,48 @@ elif val[1] == 'faculty':
         elif choice == '2':
             faculty_instance.view_advisor_requests()
         elif choice == '3':
-            if faculty_instance.is_examiner():
-                faculty_instance.send_examiners_response()
-            else:
-                print("You are not an examiner for any project.")
+            faculty_instance.accept_deny_examiners_invite()
         elif choice == '4':
-            if faculty_instance.is_advisor():
-                faculty_instance.send_advisor_response()
-            else:
-                print("You are not an advisor for any project.")
+            faculty_instance.accept_deny_advisor_request()
         elif choice == '5':
             if faculty_instance.is_advisor():
                 advisor_instance = Advisor(val[0])
-                # Advisor specific choices...
+                while True:
+                    print("\n=== Advisor Menu ===")
+                    print("1. Modify Project")
+                    print("2. Approve Project")
+                    print("3. Back to Faculty Menu")
+                    advisor_choice = input("\nEnter your choice: ")
+
+                    if advisor_choice == '1':
+                        advisor_instance.modify_project()
+                    elif advisor_choice == '2':
+                        advisor_instance.approve_project()
+                    elif advisor_choice == '3':
+                        break  # Breaks out of the advisor loop, returns to faculty menu
+                    else:
+                        print("Invalid choice. Please try again.")
             else:
                 print("You are not an advisor for any project.")
         elif choice == '6':
             if faculty_instance.is_examiner():
                 examiners_instance = Examiners(val[0])
                 # Examiners specific choices...
+                while True:
+                    print("\n=== Examiner Menu ===")
+                    print("1. Approve/Deny Project")
+                    print("2. Evaluate Project")
+                    print("3. Back to Faculty Menu")
+                    examiner_choice = input("\nEnter your choice: ")
+
+                    if examiner_choice == '1':
+                        examiners_instance.send_project_response()
+                    elif examiner_choice == '2':
+                        examiners_instance.evaluate_project()
+                    elif examiner_choice == '3':
+                        break  # Breaks out of the examiner loop, returns to faculty menu
+                    else:
+                        print("Invalid choice. Please try again.")
             else:
                 print("You are not an examiner for any project.")
         elif choice == '7':
